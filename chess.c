@@ -23,21 +23,14 @@ color checkColor(piece pieces) {
 
     for(int i = 0; i < 12; i++) {
 		if(whitePiece[i] == pieces) {
-			printf("piecesWhite: %d\t", pieces);
-			printf("i: %d\t", i);
-			printf("whitePiece[i]: %d\n", whitePiece[i]);
 			return white;
 		}
 		else if(blackPiece[i] == pieces) {
-			printf("piecesBlack: %d\t", pieces);
-			printf("i: %d\t", i);
-			printf("blackPiece[i]: %d\n", whitePiece[i]);
-
 			return black;
 		}
     }
 	
-    return printf("error, value piece: %d\n",pieces);
+    //return printf("error, value piece: %d\n",pieces);
 }
 
 
@@ -63,53 +56,48 @@ void threatQueen(int y, int x, int threatMap[8][8]);
 void threatWitePawn(int y, int x, int threatMap[8][8]);
 void threatBlackPawn(int y, int x, int threatMap[8][8]);
 int checkCoord(int coordY, int coordX);
+void threatEmpty(int y, int x, int threatMap[8][8]);
 
 void allThereMap(color colors) {
 	for(int y = 0; y < 8; y++){
 		for(int x = 0; x < 8; x++) {
-			if(checkColor(bord[y][x]) == colors) {
+		 	  if(checkColor(bord[y][x]) == colors) {
 				if(bord[y][x] == king || bord[y][x] == KING) {
 					threatKing(y,x, threatMap);
 				}
-			}
-			if(checkColor(bord[y][x]) == colors) {
-				if(bord[y][x] == queen || bord[y][x] == QUEEN) {
-					threatKing(y,x, threatMap);
+			  
+				else if(bord[y][x] == queen || bord[y][x] == QUEEN) {
+					threatQueen(y,x, threatMap);
 				}
-			}
-			if(checkColor(bord[y][x]) == colors) {
-				if(bord[y][x] == bishop || bord[y][x] == BISHOP) {
-					threatKing(y,x, threatMap);
+				else if(bord[y][x] == bishop || bord[y][x] == BISHOP) {
+					threatBishop(y,x, threatMap);
 				}
-			}
-			if(checkColor(bord[y][x]) == colors) {
-				if(bord[y][x] == knight || bord[y][x] == KNIGHT) {
-					threatKing(y,x, threatMap);
+				else if(bord[y][x] == knight || bord[y][x] == KNIGHT) {
+					threatKnight(y,x, threatMap);
 				}
-			}
-			if(checkColor(bord[y][x]) == colors) {
-				if(bord[y][x] == rook || bord[y][x] == ROOK) {
-					threatKing(y,x, threatMap);
+				else if(bord[y][x] == rook || bord[y][x] == ROOK) {
+					threatRook(y,x, threatMap);
 				}
-			}
-			if(checkColor(bord[y][x]) == colors) {
-				if(bord[y][x] == pawn || bord[y][x] == PAWN) {
-					threatKing(y,x, threatMap);
+				else if(bord[y][x] == PAWN) {
+					threatWitePawn(y,x, threatMap);
 				}
-			}
+				else if(bord[y][x] == pawn){
+					threatBlackPawn(y,x, threatMap);
+				} 
+			} 
 		}
 	}
 }
 int main() {
-	allThereMap(1);
+	//allThereMap(0);
     //printf("%d",checkColor(pawn));
     //printBord(bord);
-	//threatKnight(3,  5,  threatMap);
+	//threatKnight(7,  6,  threatMap);
 	//printThrMap(threatMap);
 	//threatKing(3,5,threatMap);
 	//threatRook(3,5, threatMap);
-	//threatBishop(3,5,threatMap);
-	//threatQueen(3,5,threatMap);
+	//threatBishop(7,2,threatMap);
+	threatQueen(4,4,threatMap);
 	//threatWitePawn(4, 2, threatMap);
 	//threatBlackPawn(1, 3, threatMap);
 
@@ -171,8 +159,7 @@ void printBord(piece bord[8][8]) {
 
 void threatKnight(int y, int x, int threatMap[8][8]) {
 	threatMap[y][x] = 9;
-	
-	if(y < 6 || x < 7){
+	if(y < 6 && x < 7){
 		y += 2;
 		x += 1;
 		threatMap[y][x] = 1;
@@ -180,16 +167,15 @@ void threatKnight(int y, int x, int threatMap[8][8]) {
 		x -= 1;
     }
 	
-    if(y < 7 || x < 6){
+     if(y < 7 && x < 6){
 		y += 1;
 		x += 2;
 		threatMap[y][x] = 1;
 		y -= 1;
 		x -= 2;
-
 	}
 	
-	if(y > 1 || x < 6){
+	if(y > 1 && x < 6){
 		y -= 1;
 		x += 2;
 		threatMap[y][x] = 1;
@@ -198,7 +184,7 @@ void threatKnight(int y, int x, int threatMap[8][8]) {
 	}
 	
 	
-	if(y > 2 || x < 7){
+	if(y > 2 && x < 7){
 		y -= 2;
 		x += 1;
 		threatMap[y][x] = 1;
@@ -206,7 +192,7 @@ void threatKnight(int y, int x, int threatMap[8][8]) {
 		x -= 1;
 	}
 	
-	if(y > 2 || x > 1){
+	if(y >= 1 && x > 0){
 		y -= 2;
 		x -= 1;
 		threatMap[y][x] = 1;
@@ -214,7 +200,7 @@ void threatKnight(int y, int x, int threatMap[8][8]) {
 		x += 1;
 	}	
 	
-	if(y > 1 || x > 2){
+	if(y >= 1 && x >= 2){
 		y -= 1;
 		x -= 2;
 		threatMap[y][x] = 1;
@@ -222,7 +208,7 @@ void threatKnight(int y, int x, int threatMap[8][8]) {
 		x += 2;
 	}
 		
-	if(y < 7 || x > 2){
+	if(y < 7 && x > 2){
 		y += 1;
 		x -= 2;
 		threatMap[y][x] = 1;
@@ -230,119 +216,54 @@ void threatKnight(int y, int x, int threatMap[8][8]) {
 		x += 2;
 	}
 	
-	if(y < 6 || x > 1){
+	if(y < 6 && x > 1){
 		y += 2;
 		x -= 1;
 		threatMap[y][x] = 1;
 		y -= 2;
 		x += 1;	
-	}
-	
+	} 
 	printThrMap(threatMap);
 }
 
 void threatKing(int y, int x, int threatMap[8][8]) {
-	threatMap[y][x] = 9;
-	
-	if(y < 7 || x < 7){
-		y += 1;
-		x += 1;
-		threatMap[y][x] = 1;
-		y -= 1;
-		x -= 1;
+    
+    
+    int arrY[] = {y+1, y+1, y+1, y, y-1, y-1, y-1, y};
+    int arrX[] = {x+1, x, x-1, x-1, x-1, x, x+1, x+1};
+    for(int i = 0; i < 8; i++) {
+	if(checkCoord(arrY[i], arrX[i] )){
+	    threatMap[arrY[i]][arrX[i]] = 1;
+	}
     }
-	
-    if(y < 7){
-		y += 1;
-		threatMap[y][x] = 1;
-		y -= 1;
-	}
-	
-	if(y < 7 || x > 1){
-		y += 1;
-		x -= 1;
-		threatMap[y][x] = 1;
-		y -= 1;
-		x += 1;
-	}
-	
-	
-	if(x > 1){
-		x -= 1;
-		threatMap[y][x] = 1;
-		x += 1;
-	}
-	
-	if(y > 1 || x > 1){
-		y -= 1;
-		x -= 1;
-		threatMap[y][x] = 1;
-		y += 1;
-		x += 1;
-	}	
-	
-	if(y > 1){
-		y -= 1;
-		threatMap[y][x] = 1;
-		y += 1;
-	}
-		
-	if(y > 1 || x < 7){
-		y -= 1;
-		x += 1;
-		threatMap[y][x] = 1;
-		y += 1;
-		x -= 1;
-	}
-	
-	if(x < 7){
-		x += 1;
-		threatMap[y][x] = 1;
-		x -= 1;	
-	}
-	
+    	
 	printThrMap(threatMap);
 }
 
 void threatRook(int y, int x, int threatMap[8][8]) {
-	threatMap[y][x] = 9;
-	int xChange = x;
-	int yChange = y;
-
-	while (xChange <= 7)
-	{
-		xChange++;
-		threatMap[y][xChange] = 1;
-	}
-	xChange = x;
-	while (xChange >= 0)
-	{
-		xChange--;
-		threatMap[y][xChange] = 1;
-	}
-	xChange = x;
-	while (yChange <= 7)
-	{
-		yChange++;
-		threatMap[yChange][x] = 1;
-	}
-	yChange = y;
-	while (yChange >= 0)
-	{
-		yChange--;
-		threatMap[yChange][x] = 1;
-	}
-	yChange = y;
+	//threatMap[y][x] = 9;
+	int arrY[] = {0, 0, 1, -1};
+	int arrX[] = {1, -1, 0, 0};
 	
+	for(int i = 0; i < 4; i++) {
+	    int xChange = x;
+	    int yChange = y;
+	    while (checkCoord(yChange, xChange)) {
+		xChange += arrX[i];
+		yChange += arrY[i];
+		threatMap[yChange][xChange] = 1;
+		}
+	    }//to do разобраться с лишнмим клетками ударов, если на борд клетка не empty, то область удара уменьшается в соответсвии с расположением фигуры (если это противник, то на клетку с фигурой можно встать, если совой, то нельзя)
+	    
 	printThrMap(threatMap);
 }
 
 void threatBishop(int y, int x, int threatMap[8][8]) {
-	threatMap[y][x] = 9;
+	//threatMap[y][x] = 9;
 	int xChange = x;
 	int yChange = y;
 
-	while (xChange <= 7 || yChange >= 0)
+	while (xChange < 7 && yChange > 0)
 	{
 		xChange++;
 		yChange--;
@@ -350,7 +271,7 @@ void threatBishop(int y, int x, int threatMap[8][8]) {
 	}
 	xChange = x;
 	yChange = y;
-	while (xChange <= 7 || yChange <= 7)
+	while (xChange < 7 && yChange < 7)
 	{
 		xChange++;
 		yChange++;
@@ -358,7 +279,7 @@ void threatBishop(int y, int x, int threatMap[8][8]) {
 	}
 	xChange = x;
 	yChange = y;
-	while (xChange >= 0 || yChange <= 7)
+	while (xChange > 0 && yChange < 7)
 	{
 		xChange--;
 		yChange++;
@@ -366,7 +287,7 @@ void threatBishop(int y, int x, int threatMap[8][8]) {
 	}
 	xChange = x;
 	yChange = y;
-	while (xChange >= 0 || yChange >= 0)
+	while (xChange > 0 && yChange > 0)
 	{
 		xChange--;
 		yChange--;
@@ -379,92 +300,54 @@ void threatBishop(int y, int x, int threatMap[8][8]) {
 }
 
 void threatQueen(int y, int x, int threatMap[8][8]) {
-	threatMap[y][x] = 9;
-	int xChange = x;
-	int yChange = y;
-
-	while (xChange <= 7 || yChange >= 0)
-	{
-		xChange++;
-		yChange--;
-		threatMap[yChange][xChange] = 1;
-	}
-	xChange = x;
-	yChange = y;
-	while (xChange <= 7 || yChange <= 7)
-	{
-		xChange++;
-		yChange++;
-		threatMap[yChange][xChange] = 1;
-	}
-	xChange = x;
-	yChange = y;
-	while (xChange >= 0 || yChange <= 7)
-	{
-		xChange--;
-		yChange++;
-		threatMap[yChange][xChange] = 1;
-	}
-	xChange = x;
-	yChange = y;
-	while (xChange >= 0 || yChange >= 0)
-	{
-		xChange--;
-		yChange--;
-		threatMap[yChange][xChange] = 1;
-	}
-	xChange = x;
-	yChange = y;
-
-	while (xChange <= 7)
-	{
-		xChange++;
-		threatMap[y][xChange] = 1;
-	}
-	xChange = x;
-	while (xChange >= 0)
-	{
-		xChange--;
-		threatMap[y][xChange] = 1;
-	}
-	xChange = x;
-	while (yChange <= 7)
-	{
-		yChange++;
-		threatMap[yChange][x] = 1;
-	}
-	yChange = y;
-	while (yChange >= 0)
-	{
-		yChange--;
-		threatMap[yChange][x] = 1;
-	}
-	yChange = y;
-	
-	printThrMap(threatMap);
+	//threatMap[y][x] = 9;
+	threatBishop(y, x, threatMap);
+	threatRook(y, x, threatMap);
 }
 
 void threatWitePawn(int y, int x, int threatMap[8][8]) {
-	threatMap[y][x] = 9;
-if (y == 6) {
-	for(int n = 0; n < 2; n++) {
-			y --;
+	//threatMap[y][x] = 9;
+	int xChange = x;
+	int yChange = y;
+if (yChange == 6) {
+	
+			yChange --;
+			xChange--;
 		if(checkCoord(y, x)) {
 			threatMap[y][x] = 1;
 		}
-	}
-} else {
-	    if(checkCoord(y, x)) {
+			yChange--;
+		if(checkCoord(y, x)) {
+			threatMap[y][x] = 1;
+		}
+		xChange = x;
+		yChange = y;
+		yChange --;
+		xChange--;
+		if(checkCoord(y, x)) {
+			threatMap[y][x] = 1;
+		}
+		yChange--;
+		if(checkCoord(y, x)) {
+			threatMap[y][x] = 1;
+		}
+	
+} 
+else {
 		y--;
-		threatMap[y][x] = 1;
-	}
+	    if(checkCoord(y, x)) {
+			threatMap[y][x] = 1;
+		}
 }
 	printThrMap(threatMap);
+}
 
+void threatEmpty(int y, int x, int threatMap[8][8]) {
+			threatMap[y][x] = 0;
 }
 
 void threatBlackPawn(int y, int x, int threatMap[8][8]) {
-	threatMap[y][x] = 9;
+	//threatMap[y][x] = 9;
 if (y == 1) {
 	for(int n = 0; n < 2; n++) {
 		y ++;
@@ -485,10 +368,10 @@ if (y == 1) {
 
 int checkCoord(int coordY, int coordX) {
     if(coordY > 7 || coordY < 0 || coordX > 7 || coordX < 0) {
-	return 0;
+		return 0;
     }
     else {
-	return 1;
+		return 1;
     }
 
 }
