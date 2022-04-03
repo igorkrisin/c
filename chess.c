@@ -1,7 +1,27 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 //Белые - вывод заглавными буквами
 //Черные строчные буквы вывод
+typedef struct cell  {
+    int goToY; int goToX; int goFromY; int goFromX; struct cell* next;
+    
+} list;
+
+//cons(13,cons(42,cons(666,NULL))))
+
+list* cons(list* lst, int cellToY,int cellToX,int cellFromY,int cellFromX) {
+    list* newCell = malloc(1000);
+    (*newCell).goToY = cellToY; //разименование
+    newCell->goToX = cellToX;
+    newCell->goFromY = cellFromY;
+    newCell->goFromX = cellFromX;
+    newCell->next = lst;
+    
+    return newCell;
+} 
+
+
 typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, king, queen, bishop, knight, rook, pawn, empty} piece;
 
     piece bord[8][8] = {
@@ -14,7 +34,7 @@ typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, king, queen, bisho
 	{PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN},
 	{ROOK, KNIGHT, BISHOP, KING, QUEEN, BISHOP, KNIGHT, ROOK},	
 };
-		   			   //0     //1
+		      //0     //1
 typedef enum colors {white, black} color;
 
 color checkColor(piece pieces) {
@@ -89,16 +109,16 @@ void allThereMap(color colors) {
 	}
 }
 int main() {
-	//allThereMap(0);
+	//allThereMap(1);
     //printf("%d",checkColor(pawn));
     //printBord(bord);
-	//threatKnight(7,  6,  threatMap);
+	//threatKnight(3,  4,  threatMap);
 	//printThrMap(threatMap);
 	//threatKing(3,5,threatMap);
 	//threatRook(3,5, threatMap);
-	//threatBishop(7,2,threatMap);
-	threatQueen(4,4,threatMap);
-	//threatWitePawn(4, 2, threatMap);
+	threatBishop(7,2,threatMap);
+	//threatQueen(4,4,threatMap);
+	//threatWitePawn(5, 2, threatMap);
 	//threatBlackPawn(1, 3, threatMap);
 
 	//printf("threatMap: %d",threatMap[7][7]);
@@ -158,71 +178,15 @@ void printBord(piece bord[8][8]) {
 }
 
 void threatKnight(int y, int x, int threatMap[8][8]) {
-	threatMap[y][x] = 9;
-	if(y < 6 && x < 7){
-		y += 2;
-		x += 1;
-		threatMap[y][x] = 1;
-		y -= 2;
-		x -= 1;
-    }
-	
-     if(y < 7 && x < 6){
-		y += 1;
-		x += 2;
-		threatMap[y][x] = 1;
-		y -= 1;
-		x -= 2;
+	//threatMap[y][x] = 9;
+	int arrY[] = {y + 2, y + 1, y - 1, y - 2,y - 2, y - 1, y + 1, y + 2};
+	int arrX[] ={x + 1, x + 2, x + 2, x + 1, x - 1, x - 2, x - 2, x - 1};
+
+	for(int i = 0; i < 8; i++) {
+		if(checkCoord(arrY[i], arrX[i])) {
+			threatMap[arrY[i]][arrX[i]] = 1;
+		}
 	}
-	
-	if(y > 1 && x < 6){
-		y -= 1;
-		x += 2;
-		threatMap[y][x] = 1;
-		y += 1;
-		x -= 2;
-	}
-	
-	
-	if(y > 2 && x < 7){
-		y -= 2;
-		x += 1;
-		threatMap[y][x] = 1;
-		y += 2;
-		x -= 1;
-	}
-	
-	if(y >= 1 && x > 0){
-		y -= 2;
-		x -= 1;
-		threatMap[y][x] = 1;
-		y += 2;
-		x += 1;
-	}	
-	
-	if(y >= 1 && x >= 2){
-		y -= 1;
-		x -= 2;
-		threatMap[y][x] = 1;
-		y += 1;
-		x += 2;
-	}
-		
-	if(y < 7 && x > 2){
-		y += 1;
-		x -= 2;
-		threatMap[y][x] = 1;
-		y -= 1;
-		x += 2;
-	}
-	
-	if(y < 6 && x > 1){
-		y += 2;
-		x -= 1;
-		threatMap[y][x] = 1;
-		y -= 2;
-		x += 1;	
-	} 
 	printThrMap(threatMap);
 }
 
@@ -248,54 +212,39 @@ void threatRook(int y, int x, int threatMap[8][8]) {
 	for(int i = 0; i < 4; i++) {
 	    int xChange = x;
 	    int yChange = y;
-	    while (checkCoord(yChange, xChange)) {
-		xChange += arrX[i];
-		yChange += arrY[i];
-		threatMap[yChange][xChange] = 1;
+	    while (checkCoord(yChange, xChange)){ 
+			xChange += arrX[i];
+			yChange += arrY[i];
+			if (yChange <= 7&&xChange <= 7&& xChange >= 0&& yChange >= 0){
+				threatMap[yChange][xChange] = 1;
+			}
 		}
-	    }//to do разобраться с лишнмим клетками ударов, если на борд клетка не empty, то область удара уменьшается в соответсвии с расположением фигуры (если это противник, то на клетку с фигурой можно встать, если совой, то нельзя)
+	}//to do  если на борд клетка не empty, то область удара уменьшается в соответсвии с расположением фигуры (если это противник, то на клетку с фигурой можно встать, если совой, то нельзя)
 	    
 	printThrMap(threatMap);
 }
 
-void threatBishop(int y, int x, int threatMap[8][8]) {
-	//threatMap[y][x] = 9;
-	int xChange = x;
-	int yChange = y;
 
-	while (xChange < 7 && yChange > 0)
-	{
-		xChange++;
-		yChange--;
-		threatMap[yChange][xChange] = 1;
+//123
+//456x
+//789
+
+//123456789
+
+void threatBishop(int y, int x, int threatMap[8][8]) {
+	int arrY[] = {1, 1, -1, -1};
+	int arrX[] = {-1, 1, 1, -1};
+	for(int i = 0; i < 4; i++){
+		int xChange = x;
+		int yChange = y;
+		while(checkCoord(yChange, xChange)){
+			yChange += arrY[i];
+			xChange += arrX[i];
+			if (yChange <= 7&&xChange <= 7&& xChange >= 0&& yChange >= 0){//todo сократить количество проверок, рефакторить код
+				threatMap[yChange][xChange] = 1;
+			}
+		}
 	}
-	xChange = x;
-	yChange = y;
-	while (xChange < 7 && yChange < 7)
-	{
-		xChange++;
-		yChange++;
-		threatMap[yChange][xChange] = 1;
-	}
-	xChange = x;
-	yChange = y;
-	while (xChange > 0 && yChange < 7)
-	{
-		xChange--;
-		yChange++;
-		threatMap[yChange][xChange] = 1;
-	}
-	xChange = x;
-	yChange = y;
-	while (xChange > 0 && yChange > 0)
-	{
-		xChange--;
-		yChange--;
-		threatMap[yChange][xChange] = 1;
-	}
-	xChange = x;
-	yChange = y;
-	
 	printThrMap(threatMap);
 }
 
@@ -305,41 +254,25 @@ void threatQueen(int y, int x, int threatMap[8][8]) {
 	threatRook(y, x, threatMap);
 }
 
-void threatWitePawn(int y, int x, int threatMap[8][8]) {
-	//threatMap[y][x] = 9;
-	int xChange = x;
-	int yChange = y;
-if (yChange == 6) {
-	
-			yChange --;
-			xChange--;
-		if(checkCoord(y, x)) {
-			threatMap[y][x] = 1;
+void threatWitePawn(int y, int x, int threatMap[8][8]) {	
+	int arrY[] = {y - 1, y - 1, y - 2, y - 2};
+	int arrX[] = {x - 1, x + 1, x - 1, x + 1};
+	if (y == 6) {
+		for(int i = 0; i < 4; i++) {
+			
+			if(checkCoord(arrY[i], arrX[i])){
+				threatMap[arrY[i]][arrX[i]] = 1;
+			}
 		}
-			yChange--;
-		if(checkCoord(y, x)) {
-			threatMap[y][x] = 1;
+	}
+	else {
+		for(int i = 0; i < 2; i++) {
+			if(checkCoord(arrY[i], arrX[i])){
+				threatMap[arrY[i]][arrX[i]] = 1;
+			}
 		}
-		xChange = x;
-		yChange = y;
-		yChange --;
-		xChange--;
-		if(checkCoord(y, x)) {
-			threatMap[y][x] = 1;
-		}
-		yChange--;
-		if(checkCoord(y, x)) {
-			threatMap[y][x] = 1;
-		}
-	
-} 
-else {
-		y--;
-	    if(checkCoord(y, x)) {
-			threatMap[y][x] = 1;
-		}
-}
-	printThrMap(threatMap);
+	}				
+		printThrMap(threatMap);
 }
 
 void threatEmpty(int y, int x, int threatMap[8][8]) {
@@ -347,22 +280,24 @@ void threatEmpty(int y, int x, int threatMap[8][8]) {
 }
 
 void threatBlackPawn(int y, int x, int threatMap[8][8]) {
-	//threatMap[y][x] = 9;
-if (y == 1) {
-	for(int n = 0; n < 2; n++) {
-		y ++;
-		if(checkCoord(y, x)) {	
-			threatMap[y][x] = 1;
+	int arrY[] = {y + 1, y + 1, y + 2, y + 2};
+	int arrX[] = {x + 1, x - 1, x + 1, x - 1};
+	if (y == 1) {
+		for(int i = 0; i < 4; i++) {
+			
+			if(checkCoord(arrY[i], arrX[i])){
+				threatMap[arrY[i]][arrX[i]] = 1;
+			}
 		}
 	}
-} else {
-	y++;
-	if(checkCoord(y, x)) {
-	    threatMap[y][x] = 1;
-	}
-}
-
-	printThrMap(threatMap);
+	else {
+		for(int i = 0; i < 2; i++) {
+			if(checkCoord(arrY[i], arrX[i])){
+				threatMap[arrY[i]][arrX[i]] = 1;
+			}
+		}
+	}				
+		printThrMap(threatMap);
 
 }
 
@@ -385,4 +320,31 @@ void printThrMap(int threatMap[8][8]){
 	}
 		printf("\n");
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
