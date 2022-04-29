@@ -1,4 +1,8 @@
+
 #include <stdio.h>
+#include <locale.h>
+#include <fcntl.h>
+#include <wchar.h>
 #define IN 1
 #define OUT 0
 
@@ -54,7 +58,7 @@ int main() {
 
     printf("nc: %d\n nl: %d\n w: %d\n", nc, nl, w); */
 
-    int c, state;
+    /* int c, state;
     c = 0;
 
     while((c = getchar()) != EOF) {
@@ -67,6 +71,47 @@ int main() {
             putchar(c);
         }
     }
-   printf("%c",c);
-}
+   printf("%c",c); */
 
+   /* int count, c, state;
+   count = c = 0;
+   while((c = getchar()) != EOF){
+        if (c == '\n' || c == ' '){
+           printf("%c", '|');    
+       } 
+       if(c == ' ' || c == '\t'){
+           state = OUT;
+           count = 0;
+           putchar('\n');
+       }
+       else {
+           state = IN;
+           count++;
+           putchar(' ');
+       }
+   } */
+
+  /*  int c, count, state;
+   count = 0;
+   int arr[28];
+   for(int i; i < 28; i++){
+       arr[i] = 0;
+   }
+   while((c = getchar()) != EOF) {
+       if(c >= 'a' || c <= 'w') {
+           putchar('a');
+        ++arr[c - 48];
+       }
+   }
+   for (int i = 0; i < 28; i++)
+   {
+    printf("\n %d i: %d",i, arr[i]);         
+   } */
+  //0x2655
+
+  
+//setlocale(LC_ALL, "en_US.UTF-8");
+wchar_t codepoint = 0x265E;
+wprintf(L"%5c",codepoint);
+
+}
