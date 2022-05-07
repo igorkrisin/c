@@ -66,7 +66,7 @@ typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, king, queen, bisho
     piece board[64] = {
 	rook, knight, bishop, king, queen, bishop, knight, rook,
 	pawn, pawn, pawn, pawn, pawn, pawn, pawn, pawn,
-	empty,empty, empty, empty, empty, empty, empty, empty,
+	empty,empty, PAWN, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
@@ -237,19 +237,19 @@ int main() {
 	//printThrMap(threatMap);
 	//threatKing(0,3,threatMap);
 	//threatRook(3, 5, threatMap);
-	threatBishop(3,3,threatMap);
+	//threatBishop(3,3,threatMap);
 	//threatQueen(4,4,threatMap);
-	//threatWitePawn(6, 2, threatMap);
+	//threatWitePawn(2, 2, threatMap);
 	//threatBlackPawn(1, 3, threatMap);
 	//printf("threatMap: %d",threatMap[7][7]);
 	//printList(cons(13, 15, 16, 18,cons(42,6, 78, 55, cons(666, 777, 444, 222, NULL))));
 	//printList(moveKing(1, 3, board));
 	//printList(moveKnight(1, 4, board));
 	//printList(moveRook(1, 4, board));
-	//printList(moveBishop(1, 4, board));
+	//printList(moveBishop(3, 3, board));
 	//printList(moveQueen(5,3, board));
 	//printList(allMove(white, board));
-	//printList(moveWitePawn(6,3,board));
+	//printList(moveWhitePawn(4,3,board));
 	//printList(moveBlackPawn(1, 3, board));
 	//printMove(board, moveKnight(1, 4, board));
 	//printf("%d",findMove(1,3, moveKing(1, 3, board)));
@@ -260,10 +260,9 @@ int main() {
 	//printf("%d",valueMove(board,5,2,6,2,white));
 	//printf("%d",minValueMove(board, moveKnight(7,1,board), white));
 	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
-	//printf("%d\n",returnRandPiece(board, white));
-	
-	printf("%d\n", comparPiece(king, QUEEN));//todo использовать по назначению
-/*  	   while(1){
+	//printf("%d\n",returnRandPiece(board, white));	
+	//printf("%d\n", comparPiece(king, QUEEN));//todo использовать по назначению
+ 	  while(1){
 		
 		doMove(board, black, returnEl(allMove(black, board), minValueMove(board, allMove(black, board), black)));
 		getchar();
@@ -271,9 +270,8 @@ int main() {
 		doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));	
 		getchar();
 	
-	}   
-  
- */    return 0;
+	}    
+     return 0;
 }
 
 void printBord(piece board[64]) {
@@ -282,8 +280,7 @@ void printBord(piece board[64]) {
 			switchBoard(y,x,board);
 		}
 			printf("\n");
-	}
-    
+	}   
 }
 
 void threatKnight(int y, int x, int threatMap[8][8]) {
@@ -295,7 +292,6 @@ void threatKnight(int y, int x, int threatMap[8][8]) {
 			continue;
 		}
 		else {
-		
 				threatMap[arrY[i]][arrX[i]] = 1;
 			}
 		}
@@ -312,7 +308,6 @@ void threatKing(int y, int x, int threatMap[8][8]) {
 			continue;
 		}
 		else {
-			
 				threatMap[arrY[i]][arrX[i]] = 1;
 			}
 		}
@@ -332,13 +327,17 @@ void threatRook(int y, int x, int threatMap[8][8]) {
 			if(board[yChange*8+xChange] != 12 && checkColor(board[y*8+x]) == checkColor(board[yChange*8+xChange])) {
 				break;
 			} 
+			else if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) != checkColor(board[yChange*8+xChange])) {
+			    threatMap[yChange][xChange] = 1;
+			    break;
+			}
 			threatMap[yChange][xChange] = 1;
 			yChange += arrY[i];
 			xChange += arrX[i];
 		}
 
 	}
-	printThrMap(threatMap);
+	//printThrMap(threatMap);
 }
 
 void threatBishop(int y, int x, int threatMap[8][8]) {
@@ -349,9 +348,7 @@ void threatBishop(int y, int x, int threatMap[8][8]) {
 		int yChange = y;
 		xChange += arrX[i];
 		yChange += arrY[i];
-		while(yChange <= 7&& xChange <= 7&& xChange >= 0&& yChange >= 0){
-			printf("arrX[i]: %d\n",arrX[i]);
-			printf("arrY[i]: %d\n",arrY[i]);
+		while(yChange <= 7&& xChange <= 7 || xChange >= 0&& yChange >= 0){
 			if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) == checkColor(board[yChange*8+xChange])) {
 				break;
 			} 
@@ -359,14 +356,14 @@ void threatBishop(int y, int x, int threatMap[8][8]) {
 			    threatMap[yChange][xChange] = 1;
 			    break;
 			}
-			printf("threatMap[yChange][xChange]: %d\n", threatMap[yChange][xChange]);
+			
  		threatMap[yChange][xChange] = 1;
 			yChange += arrY[i];
 			xChange += arrX[i];
 			
 		}
 	}
-	printThrMap(threatMap);
+	//printThrMap(threatMap);
 }
 
 void threatQueen(int y, int x, int threatMap[8][8]) {
@@ -380,16 +377,14 @@ void threatWitePawn(int y, int x, int threatMap[8][8]) {
 	int arrX[] = {x - 1, x + 1, x - 1, x + 1};
 	for(int i = 0; i < 2; i++) {
 	if(checkCoord(arrY[i], arrX[i])){
-		if(board[arrY[i]*8+arrX[i]] != 12 && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+		if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
 			continue;
 		}
 		else {
-			
 				threatMap[arrY[i]][arrX[i]] = 1;
 			}
 		}
 	}
-					
 		//printThrMap(threatMap);
 }
 
@@ -398,27 +393,21 @@ void pointEmpty(int y, int x, int threatMap[8][8]) {
 }
 
 void threatBlackPawn(int y, int x, int threatMap[8][8]) {
-
 	int arrY[] = {y + 1, y + 1, y + 2, y + 2};
 	int arrX[] = {x + 1, x - 1, x + 1, x - 1};
-	
 	for(int i = 0; i < 2; i++) {
 	if(checkCoord(arrY[i], arrX[i])){
-		if(board[arrY[i]*8+arrX[i]] != 12 && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+		if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
 			continue;;
 		}
 		else {
-			
 				threatMap[arrY[i]][arrX[i]] = 1;
 			}
 		}
 	}
-				
 		//printThrMap(threatMap);
-
 }
  
-
 list* moveKing(int y, int x, piece board[64]) {
     allThreatMap(flipColor(checkColor(board[y*8+x])));
     list* lst = NULL;
@@ -426,11 +415,10 @@ list* moveKing(int y, int x, piece board[64]) {
     int arrX[] = {x+1, x, x-1, x-1, x-1, x, x+1, x+1};
     for(int i = 0; i < 8; i++) {
 		if(checkCoord(arrY[i], arrX[i] )){
-		if(board[arrY[i]*8+arrX[i]] != 12 && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+		if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
 			continue;
 		}
 		else {
-    
 			if(threatMap[arrY[i]][arrX[i]] == 1) {
 				continue;
 			}
@@ -441,9 +429,7 @@ list* moveKing(int y, int x, piece board[64]) {
 			}
 		}
     }
-    	
 	return lst;
-	
 }
 
 list* moveKnight(int y, int x, piece board[64]) {
@@ -456,7 +442,6 @@ list* moveKnight(int y, int x, piece board[64]) {
 			continue;
 		}
 		else {
-			
 				lst = cons(y, x, arrY[i], arrX[i], lst);
 			}
 		}
@@ -475,7 +460,13 @@ list* moveRook(int y, int x, piece board[64]) {
 		xChange += arrX[i];
 		yChange += arrY[i];
 	    while(yChange <= 7&&xChange <= 7&& xChange >= 0&& yChange >= 0){
-			if(board[yChange*8+xChange] != 12 && checkColor(board[y*8+x]) == checkColor(board[yChange*8+xChange])) {
+			if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) == checkColor(board[yChange*8+xChange])) {
+				break;
+			}
+			else if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) != checkColor(board[yChange*8+xChange])) {
+				lst = cons(y, x, yChange, xChange, lst);
+				yChange += arrY[i];
+				xChange += arrX[i];
 				break;
 			}
 			lst = cons(y, x, yChange, xChange, lst);
@@ -496,7 +487,13 @@ list* moveBishop(int y, int x, piece board[64]) {
 		xChange += arrX[i];
 		yChange += arrY[i];
 		while(yChange <= 7&&xChange <= 7&& xChange >= 0&& yChange >= 0){
-			if(board[yChange*8+xChange] != 12 && checkColor(board[y*8+x]) == checkColor(board[yChange*8+xChange])) {
+			if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) == checkColor(board[yChange*8+xChange])) {
+				break;
+			}
+			else if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) != checkColor(board[yChange*8+xChange])) {
+				lst = cons(y, x, yChange, xChange, lst);
+				yChange += arrY[i];
+				xChange += arrX[i];
 				break;
 			}
 			lst = cons(y, x, yChange, xChange, lst);
@@ -514,50 +511,81 @@ list* moveQueen(int y, int x, piece board[64]) {
 list* moveWhitePawn(int y, int x, piece board[64]) {	
 	list* lst = NULL;
 	int arrY[] = {y - 1, y - 2};
-	int arrX[] = {x , x };
-	for(int i = 0; i < 2; i++) {
+	int arrX[] = {x , x};
+	if (y < 6) {
+		for(int i = 0; i < 1; i++) {
 	    if(checkCoord(arrY[i], arrX[i])) {
-		if(board[arrY[i]*8+arrX[i]] != 12 && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
-			continue;
-		}
-		else if(board[arrY[i]*8+arrX[i]] != 12 && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
-			continue;
-		}
-		else {
-			
-				lst = cons(y, x, arrY[i], arrX[i], lst);
+			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+				continue;
+			}
+			else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+				continue;
+			}
+			else {
+					lst = cons(y, x, arrY[i], arrX[i], lst);
+				}
+			}
+		}		
+	}
+	else {
+		for(int i = 0; i < 2; i++) {
+			if(checkCoord(arrY[i], arrX[i])) {
+				if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+					continue;
+				}
+				else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+					continue;
+				}
+				else {
+						lst = cons(y, x, arrY[i], arrX[i], lst);
+				}
 			}
 		}
-	}				
+	}
+				
 		return lst;
 }
 
 list* moveBlackPawn(int y, int x, piece board[64]) {
 	list* lst = NULL;
 	int arrY[] = {y + 1, y + 2};
-	int arrX[] = {x , x };
-	for(int i = 0; i < 2; i++) {
+	int arrX[] = {x , x};
+	if (y < 6) {
+		for(int i = 0; i < 1; i++) {
 	    if(checkCoord(arrY[i], arrX[i])) {
-		if(board[arrY[i]*8+arrX[i]] != 12 && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
-			continue;
-		}
-		else if(board[arrY[i]*8+arrX[i]] != 12 && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
-			continue;
-		}
-		
-			lst = cons(y, x, arrY[i], arrX[i], lst);
+			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+				continue;
+			}
+			else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+				continue;
+			}
+			else {
+					lst = cons(y, x, arrY[i], arrX[i], lst);
+				}
+			}
+		}		
+	}
+	else{
+		for(int i = 0; i < 2; i++) {
+			if(checkCoord(arrY[i], arrX[i])) {
+				if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+					continue;
+				}
+				else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+					continue;
+				}
+				lst = cons(y, x, arrY[i], arrX[i], lst);
+			}
 		}
 	}			
 		return lst;
 }
-
 
 //if x>0: return 1 else return 0
 //return x>0
 
 int checkCoord(int coordY, int coordX) {
     return !(coordY > 7 || coordY < 0 || coordX > 7 || coordX < 0);
-
 }
 
 void printThrMap(int threatMap[8][8]){
@@ -569,7 +597,6 @@ void printThrMap(int threatMap[8][8]){
 	}
 		printf("\n");
 }
-
 
 // a[i]
 // *(a+i)
@@ -587,7 +614,6 @@ int findMove(int y , int x, list* move) {
 }
 
 void printMove(piece board[64], list* move) {
-	
     for(int y = 0; y < 8; y++) {
 		printf("%s", BLACKBG);
 		for(int x = 0; x < 8; x++) {	
@@ -709,7 +735,6 @@ piece returnRandPiece(piece board[64], color colors) {
 } */
 
 void doMove(piece board[64], color(colors), list* lst) {
-     
     board[lst->goToY*8 + lst->goToX] = board[lst->goFromY*8+lst->goFromX];
     board[lst->goFromY*8+lst->goFromX] = empty; 
 	printBord(board)  ;
@@ -733,11 +758,9 @@ int checkMate(piece board[64], color colors) {
 	return 1;
 }
 
-
 void checkKing(int* x, int* y, color colors){
     for(int y1 = 0; y1 < 8; y1++) {
 		for(int x1 = 0; x1 < 8; x1++) { // todo передать цвет и проверить, что цвет совпадает у короля
-			
 			if(board[y1*8+x1] == KING && checkColor(KING) == colors) {
 				*y = y1;
 				*x = x1;
@@ -759,7 +782,6 @@ piece* copyBoard(piece board[64]) {
     }
     return newBoard;
 }
-
 
 int valuePiece(piece piecec) {
     switch(piecec) {
@@ -790,7 +812,6 @@ int valuePiece(piece piecec) {
     }
     
 }
-
 
 int amountValuePiecec(piece board[64], color colors) {
     int amount = 0;
@@ -829,18 +850,13 @@ int minValueMove(piece board[64], list* move, color colors) {
 	return numberMinEl;
 }
 
-
 //todo проверить мат для короля
 //todo погуглить глубину перебора в шахматах и какие вообще существовали в истории
 //ханойская башня
-
-
-
 /* y=1 x=0
 123
 456
 789
-
 
 X=3
 h=y*X+x
