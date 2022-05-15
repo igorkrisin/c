@@ -11,6 +11,7 @@
 #define MAGENTA "\033[35m"     
 #define CYAN    "\033[36m" 
 #define BLACKBG   "\033[40m" 
+#define PRINT "printf"
 //#define CURS "[10;30Н"   
 
 //Белые - вывод заглавными буквами
@@ -288,7 +289,7 @@ int main() {
 	//printf("%d",returnValueThMap(5,3,black));
 //checkMate(board, white);
 //printList(doMoveKingColor(0, 3, board, black));
-  /*int whiteBl = white;
+   int whiteBl = white;
  	  while(1) {
  	    whiteBl = flipColor(whiteBl);
 		printf("wb: %d , ", whiteBl);
@@ -306,10 +307,10 @@ int main() {
 		
 		getchar();
 	    
-	}*/  
-	for(int depth = 1; depth < 7; depth++) {
+	} 
+	/* for(int depth = 1; depth < 7; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth));
-	}
+	}  */
 	
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
   //doMove(board, black, returnEl(allMove(black, board), minValueMove(board, allMove(black, board), black)));
@@ -408,27 +409,22 @@ void threatBishop(int y, int x, int threatMap[64]) {
 }
 
 void threatQueen(int y, int x, int threatMap[64]) {
-	//printf("yQ: %d\t", y);
-	//printf("xQ: %d\n", x);
-
 	threatRook(y, x, threatMap);
 	threatBishop(y, x, threatMap);
-	//printf("thrMapQueen: %s\n", "");
-	//printThrMap(threatMap);
 }
 
 void threatWitePawn(int y, int x, int threatMap[64]) {	
-	int arrY[] = {y - 1, y - 1, y - 2, y - 2};
-	int arrX[] = {x - 1, x + 1, x - 1, x + 1};
+	int arrY[] = {y - 1, y - 1};
+	int arrX[] = {x - 1, x + 1};
 	for(int i = 0; i < 2; i++) {
-	if(checkCoord(arrY[i], arrX[i])){
-		if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
-			continue;
-		}
-		else {
-				threatMap[arrY[i]*8+arrX[i]] = 1;
+		if(checkCoord(arrY[i], arrX[i])){
+			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+				continue;
 			}
-		}
+			else {
+				threatMap[arrY[i]*8+arrX[i]] = 1;
+				}
+			}
 	}
 		//printThrMap(threatMap);
 }
@@ -438,12 +434,12 @@ void pointEmpty(int y, int x, int threatMap[64]) {
 }
 
 void threatBlackPawn(int y, int x, int threatMap[64]) {
-	int arrY[] = {y + 1, y + 1, y + 2, y + 2};
-	int arrX[] = {x + 1, x - 1, x + 1, x - 1};
+	int arrY[] = {y + 1, y + 1};
+	int arrX[] = {x + 1, x - 1};
 	for(int i = 0; i < 2; i++) {
 	if(checkCoord(arrY[i], arrX[i])){
 		if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
-			continue;;
+			continue;
 		}
 		else {
 				threatMap[arrY[i]*8+arrX[i]] = 1;
@@ -553,6 +549,7 @@ list* moveBishop(int y, int x, piece board[64]) {
 list* moveQueen(int y, int x, piece board[64]) {
 	return append(moveRook(y,x, board), moveBishop(y,x,board));
 }
+
 list* pawnCheckEnemyWhite(int y, int x, piece board[64]){
 	list* lst = NULL;
 	int arrY[] = {y - 1, y - 1};
@@ -564,9 +561,32 @@ list* pawnCheckEnemyWhite(int y, int x, piece board[64]){
 				lst = cons(y, x, arrY[i], arrX[i], lst);
 			}
 		}
+		else{
+			continue;
+		}
 	}
 	return lst;
-}//проблема 1: белый начинеет ход приемущественно с пешек, черный с других фигур, черный пешками не ходит.
+}
+
+
+list* pawnCheckEnemyBlack(int y, int x, piece board[64]){
+	list* lst = NULL;
+	int arrY[] = {y + 1, y + 1};
+	int arrX[] = {x + 1, x - 1};
+	
+	for(int i; i < 2; i++){
+		if(checkCoord(arrY[i], arrX[i])){
+			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+				lst = cons(y, x, arrY[i], arrX[i], lst);
+			}
+		}
+		else{
+			continue;
+		}
+	}
+	return lst;
+}
+//проблема 1: белый начинеет ход приемущественно с пешек, черный с других фигур, черный пешками не ходит.
 //проблема 2: белый пешками не рубит
 //проблема 3: segmentation fault когда происходит мат
 
@@ -576,17 +596,54 @@ list* moveWhitePawn(int y, int x, piece board[64]) {
 	int arrY[] = {y - 1, y - 2};
 	int arrX[] = {x , x};
 	lst2 = pawnCheckEnemyWhite(y, x, board);
-		
 			if(lst2 != NULL){
-				//printf("printList1: %s\n", " lst2 ");
-				//printList(lst2);
 				lst = append(lst, lst2);
-				//printf("printList: %s\n", " lst ");
-				//delList(lst2);
-				//printList(lst);
 			}
 	if (y != 6) {
-		
+		for(int i = 0; i < 1; i++) {
+			if(checkCoord(arrY[i], arrX[i])) {
+			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+				continue;
+			}
+			else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+				continue;
+			}
+			else {
+					lst = cons(y, x, arrY[i], arrX[i], lst);
+				}
+			}
+		}	
+	}
+	else {
+		for(int i = 0; i < 2; i++) {
+			if(checkCoord(arrY[i], arrX[i])) {
+				if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
+					continue;
+				}
+				else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+					continue;
+				}
+				else {
+						lst = cons(y, x, arrY[i], arrX[i], lst);
+				}
+			}
+		}	
+	}	
+		return lst;
+}
+
+
+
+list* moveBlackPawn(int y, int x, piece board[64]) {
+	list* lst = NULL;
+	list* lst2 = NULL;
+	int arrY[] = {y + 1, y + 2};
+	int arrX[] = {x , x};
+	lst2 = pawnCheckEnemyBlack(y, x, board);
+			if(lst2 != NULL){
+				lst = append(lst, lst2);
+			}
+	if (y != 6) {
 		for(int i = 0; i < 1; i++) {
 			if(checkCoord(arrY[i], arrX[i])) {
 			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
@@ -622,42 +679,6 @@ list* moveWhitePawn(int y, int x, piece board[64]) {
 		return lst;
 }
 
-
-
-list* moveBlackPawn(int y, int x, piece board[64]) {
-	list* lst = NULL;
-	int arrY[] = {y + 1, y + 2};
-	int arrX[] = {x , x};
-	if (y != 1) {
-		for(int i = 0; i < 1; i++) {
-	    if(checkCoord(arrY[i], arrX[i])) {
-			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
-				continue;
-			}
-			else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
-				continue;
-			}
-			else {
-					lst = cons(y, x, arrY[i], arrX[i], lst);
-				}
-			}
-		}		
-	}
-	else{
-		for(int i = 0; i < 2; i++) {
-			if(checkCoord(arrY[i], arrX[i])) {
-				if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
-					continue;
-				}
-				else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
-					continue;
-				}
-				lst = cons(y, x, arrY[i], arrX[i], lst);
-			}
-		}
-	}			
-		return lst;
-}
 
 //if x>0: return 1 else return 0
 //return x>0
