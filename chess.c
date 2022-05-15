@@ -357,7 +357,6 @@ void threatKing(int y, int x, int threatMap[64]) {
     }
 	//printThrMap(threatMap);
 }
-int count = 0;
 void threatRook(int y, int x, int threatMap[64]) {
 	int arrY[] = {1, 0, 0, -1};
 	int arrX[] = {0, -1, 1, 0};
@@ -368,12 +367,10 @@ void threatRook(int y, int x, int threatMap[64]) {
 		yChange += arrY[i];
 		while(yChange <= 7&& xChange <= 7 && xChange >= 0&& yChange >= 0){
 			if(checkColor(board[y*8+x]) == checkColor(board[yChange*8+xChange]) && board[yChange*8+xChange] != empty) {
-				count++;
 				break;
 			} 
 			else if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) != checkColor(board[yChange*8+xChange])) {
 			    threatMap[yChange*8+xChange] = 1;
-				count++;
 			    break;
 			}			
  		threatMap[yChange*8+xChange] = 1;
@@ -988,19 +985,19 @@ int minValueMove(piece board[64], list* move, color colors) {
 }
 
 int countMove(piece board[64], color colors, int depth) {
+	int count = 0;
     if(depth == 0) {
 	return 1;
     }
     else { 
 	list* listMove = allMove(colors, board);
-	int count = 0;
+	
 	while(listMove != NULL) {
 	    piece* newBoard = copyBoard(board);
 	    doMove(newBoard, colors, listMove);
 	    count += countMove(newBoard, flipColor(colors), depth - 1);
 	    listMove = listMove->next;
 	    free(newBoard);
-	    
 	}
 	
 	delList(listMove);
