@@ -16,6 +16,34 @@
 
 //Белые - вывод заглавными буквами
 //Черные строчные буквы вывод
+int count_mall = 0;
+
+void* myMalloc(size_t size, int line, const char* func)
+{
+    
+
+    printf("вызван malloc из строки %d из функции %s\n", line, func);
+    count_mall++;
+    printf("count_ malloc %d\n",count_mall);
+    return malloc(size);
+
+}
+
+#define malloc(x) myMalloc(x, __LINE__, __FUNCTION__)
+
+int count_free = 0 ;
+
+void myFree(void* point, int line, const char* func)
+{
+    
+
+    printf("вызван free из строки %d из функйии %s\n", line, func);
+    count_free++;
+    printf("count_free %d\n",count_free);
+    free(point);
+}
+
+#define free(x) myFree(x, __LINE__, __FUNCTION__)
 
 
 typedef struct cell  {
@@ -308,9 +336,9 @@ int main() {
 		getchar();
 	    
 	} 
-	/* for(int depth = 1; depth < 7; depth++) {
+	for(int depth = 1; depth < 7; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth));
-	}  */
+	}  
 	
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
   //doMove(board, black, returnEl(allMove(black, board), minValueMove(board, allMove(black, board), black)));
@@ -466,10 +494,11 @@ list* moveKing(int y, int x, piece board[64]) {
 			else {
 			
 					lst = cons(y, x, arrY[i], arrX[i], lst);
-				} 
+				}
 			}
 		}
     }
+	free(newThMap);
 	//printList(lst);
 	return lst;
 }
@@ -885,8 +914,10 @@ int checkMate(piece board[64], color colors) {
 int returnValueThMap(int y, int x, color colors) {
 	int* newThMap = allThreatMap(flipColor(colors));
 	if(newThMap[y*8+x] == 1) {
+		free(newThMap);
 		return 1;
 	}
+	free(newThMap);
 	return 0;
 }
 
@@ -922,6 +953,7 @@ list* doMoveKingColor(int y, int x,piece board[64],color colors) {
 			}
 		}
     }
+	free(newThMap);
 	//printList(lst);
 	return lst;
 }
@@ -1002,6 +1034,7 @@ int minValueMove(piece board[64], list* move, color colors) {
     		numberEl++;
 		move = move->next;
     }
+	delList(move);
 	return numberMinEl;
 }
 
