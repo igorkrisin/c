@@ -111,7 +111,9 @@ int main() {
 
   
 //setlocale(LC_ALL, "en_US.UTF-8");
-wchar_t codepoint = 0x265E;
-wprintf(L"%5c",codepoint);
+/* wchar_t codepoint = 0x265E;
+wprintf(L"%5c",codepoint); */
+
+printf("\u2654 \n");
 
 }

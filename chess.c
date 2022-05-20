@@ -240,7 +240,7 @@ list* allMove(color colors, piece board[64]) {
 			} 
 		}
 	}
-	//	amountLst = append(amountLst, castling(board, colors));
+		amountLst = append(amountLst, castling(board, colors));
 	
     return amountLst;	
 }
@@ -327,7 +327,7 @@ int main() {
 	//printf("%d",returnValueThMap(5,3,black));
 //checkMate(board, white);
 //printList(doMoveKingColor(0, 3, board, black));
-  /* int whiteBl = white;
+  int whiteBl = white;
  	  while(1) {
  	    whiteBl = flipColor(whiteBl);
 		printf("wb: %d , ", whiteBl);
@@ -345,10 +345,10 @@ int main() {
 		
 		getchar();
 	    
-	} */ 
-	for(int depth = 1; depth < 7; depth++) {
+	} 
+	/* for(int depth = 1; depth < 7; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth));
-	}  
+	} */  
 	//printf("count_free %d\n",count_free);
 	//printf("count_ malloc %d\n",count_mall); 
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
@@ -552,7 +552,6 @@ list* moveRook(int y, int x, piece board[64]) {
 				break;
 			}
 			else if(board[yChange*8+xChange] != empty && checkColor(board[y*8+x]) != checkColor(board[yChange*8+xChange])) {
-			//	printf("checkColor(board[yChange*8+xChange]WH: %d\n", checkColor(board[y*8+x]));
 
 				if(checkColor(board[y*8+x] == white)) {
 					moveRookCountWhite++;
@@ -571,12 +570,9 @@ list* moveRook(int y, int x, piece board[64]) {
 				
 			}
 			else if(checkColor(board[y*8+x] == black)) {
-				//printf("checkColor(board[yChange*8+xChange]BL: %d\n", checkColor(board[y*8+x]));
 
 				moveRookCountBlack++;
 			}
-			//printf("moveRookCountWhite: %d\n", moveRookCountWhite);
-			//printf("moveRookCountBlack: %d\n", moveRookCountBlack);
 			lst = cons(y, x, yChange, xChange, lst);
 			yChange += arrY[i];
 			xChange += arrX[i];
@@ -665,7 +661,7 @@ else:
   .....
 */
 
-list* moveWhitePawn(int y, int x, piece board[64]) {	//TODO: переделать blackPawn как whitePawn
+list* moveWhitePawn(int y, int x, piece board[64]) {	
 	int arrY[] = {y - 1, y - 2};
 	int arrX[] = {x , x};
 	list* lst = pawnCheckEnemyWhite(y, x, board);
@@ -688,7 +684,7 @@ list* moveWhitePawn(int y, int x, piece board[64]) {	//TODO: переделат�
 
 
 
-list* moveBlackPawn(int y, int x, piece board[64]) {	//TODO: переделать blackPawn как whitePawn
+list* moveBlackPawn(int y, int x, piece board[64]) {	
 	int arrY[] = {y + 1, y + 2};
 	int arrX[] = {x , x};
 	list* lst = pawnCheckEnemyWhite(y, x, board);
@@ -760,40 +756,40 @@ void printMove(piece board[64], list* move) {
 void switchBoard(int y,int x,piece board[64]){
 	switch(board[y*8+x]) { 
 		case king: 
-			printf("k");
+			printf("\u265A");
 			break;
 		case queen:
-			printf("q");
+			printf("\u265B");
 			break;
 		case bishop:
-			printf("b");
+			printf("\u265D");
 			break;
 		case knight:
-			printf("h");
+			printf("\u265E");
 			break;
 		case rook:
-			printf("r");
+			printf("\u265C");
 			break;    
 		case pawn:
-			printf("p");
+			printf("\u265F");
 			break;    
 		case KING:
-			printf("K");
+			printf("\u2654");
 			break;    
 		case QUEEN:
-			printf("Q");
+			printf("\u2655");
 			break;
 		case BISHOP:
-			printf("B");
+			printf("\u2657");
 			break;
 		case KNIGHT:
-			printf("H");
+			printf("\u2658");
 			break;
 		case ROOK:
-			printf("R");
+			printf("\u2656");
 			break;    
 		case PAWN:
-			printf("P");
+			printf("\u2659");
 			break;    
 		case empty:
 			printf(" ");
@@ -1078,52 +1074,30 @@ list* castling(piece board[64], color colors){
 	int x2, y2;
 	int x, y;
 	checkKing(&y, &x, colors);
-	//printf("x: %d\n", x);
-	//printf("y: %d\n", y);
-	//printf("x2: %d\n", x2);
-	//printf("y2: %d\n", y2);
 	checkRook(&y2, &x2, colors);
-//	printf("colors: %d\n", colors);
 	
 	if(moveKingCountWhite == 0 && moveRookCountWhite == 0 && !checkCheck(board,colors)) {
-		//printf("y*8+x+1: %d\n", y*8+x+1);
 		if(board[y*8+x+1] == empty && board[y*8+x+2] == empty ) {
-			//printf("castl in func right WH: %s\n", "good");
 			lst = cons(y, x, y, x+2, lst);
 			lst = cons(y2, x2, y2, x-2, lst);
 			
 		}
-		//printf("castl in func x-1 WH: %d\n", board[y*8+x-1]);
-		//printf("castl in func x-2 WH: %d\n", board[y*8+x-2]);
-		//printf("castl in func x-3 WH: %d\n", board[y*8+x-3]);
 		if(board[y*8+x-1] == empty && board[y*8+x-2] == empty&& board[y*8+x-3] == empty) {
-			//printf("castl in func left WH: %s\n", "good");
 			lst = cons(y, x, y, x-2, lst);
 			lst = cons(y2, x2, y2, x+3, lst);
 		}
 	}
-	//printf("moveKingCountBlack: %d\n", moveKingCountBlack);
-	//printf("moveRookCountBlack: %d\n", moveRookCountBlack);
 	if(moveKingCountBlack == 0 && moveRookCountBlack == 0 && !checkCheck(board,colors)) {
-		//printf("castl in func BL x+1: %d\n", board[y*8+x+1]);
-		//printf("castl in func BL x+2: %d\n", board[y*8+x+2]);
-		//printf("castl in func right: %d\n", board[y*8+x+1]);
 		if(board[y*8+x+1] == empty && board[y*8+x+2] == empty ) {
-			//printf("castl in func right BL: %s\n", "good");
 			lst = cons(y, x, y, x+2, lst);
 			lst = cons(y2, x2, y2, x-2, lst);
 		}
-		//printf("castl in func x-1 BL: %d\n", board[y*8+x-1]);
-		//printf("castl in func x-2 BL: %d\n", board[y*8+x-2]);
-		//printf("castl in func x-3 BL: %d\n", board[y*8+x-3]);
 		if(board[y*8+x-1] == empty && board[y*8+x-2] == empty&& board[y*8+x-3] == empty) {
-			//printf("castl in func left BL: %s\n", "good");
 			lst = cons(y, x, y, x-2, lst);
 			lst = cons(y2, x2, y2, x+3, lst);
 		}
 	}
 	else {
-		//printf("ELSE!!!!%s", "");
 		lst = NULL;
 	}
 

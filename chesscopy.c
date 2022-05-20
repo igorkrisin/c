@@ -563,7 +563,7 @@ list* moveWhitePawn(int y, int x, piece board[64]) {
 				}
 				}
 			}
-		}
+		
 		
 		return lst;
 }
@@ -654,47 +654,46 @@ void printMove(piece board[64], list* move) {
 void switchBoard(int y,int x,piece board[64]){
 	switch(board[y*8+x]) { 
 		case king: 
-			printf("k");
+			printf("\u265A");
 			break;
 		case queen:
-			printf("q");
+			printf("\u265B");
 			break;
 		case bishop:
-			printf("b");
+			printf("\u265D");
 			break;
 		case knight:
-			printf("k");
+			printf("\u265E");
 			break;
 		case rook:
-			printf("r");
+			printf("\u265C");
 			break;    
 		case pawn:
-			printf("p");
+			printf("\u265F");
 			break;    
 		case KING:
-			printf("K");
+			printf("\u2654");
 			break;    
 		case QUEEN:
-			printf("Q");
+			printf("\u2655");
 			break;
 		case BISHOP:
-			printf("B");
+			printf("\u2657");
 			break;
 		case KNIGHT:
-			printf("K");
+			printf("\u2658");
 			break;
 		case ROOK:
-			printf("R");
+			printf("\u2656");
 			break;    
 		case PAWN:
-			printf("P");
+			printf("\u2659");
 			break;    
 		case empty:
 			printf(" ");
 			break;
 	}
 }
-
 void delList(list* lst) {
     while(lst != NULL) {
 	list* tempP = lst;
