@@ -285,12 +285,12 @@ int*  allThreatMap(color colors, piece board[64]) {
 int main() {
         piece board[64] = {
 	rook, knight, bishop, queen, king, bishop, knight, rook,
-	empty, empty, empty, empty, empty, empty, empty, empty,
+	pawn, pawn, pawn, pawn, pawn, pawn, pawn, pawn,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
-	empty, empty, empty, empty, empty, empty, empty, empty,
+	PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN,
 	ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK,	
 };
 	//allThreatMap(white);
@@ -336,7 +336,7 @@ int main() {
 	//printf("%d",returnValueThMap(5,3,black));
 //checkMate(board, white);
 //printList(doMoveKingColor(0, 3, board, black));
-  int whiteBl = white;
+ /*  int whiteBl = white;
  	  while(1) {
 		  
  	    whiteBl = flipColor(whiteBl);
@@ -356,11 +356,11 @@ int main() {
 		
 		getchar();
 	    
-	}   
-/* 	 for(int depth = 1; depth < 7; depth++) {
+	}     */
+	 for(int depth = 1; depth < 7; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth));
 	} 
- */	//printf("count_free %d\n",count_free);
+ 	//printf("count_free %d\n",count_free);
 	//printf("count_ malloc %d\n",count_mall); 
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
   //doMove(board, black, returnEl(allMove(black, board), minValueMove(board, allMove(black, board), black)));
@@ -637,9 +637,11 @@ list* pawnCheckEnemyWhite(int y, int x, piece board[64]){
 	list* lst = NULL;
 	int arrY[] = {y - 1, y - 1};
 	int arrX[] = {x + 1, x - 1};
-	
-	for(int i; i < 2; i++){
+	for(int i = 0; i < 2; i++){
 		if(checkCoord(arrY[i], arrX[i])){
+/* 			printf("arrY[i]: %d\n", arrY[i]);
+			printf("arrX[i]: %d\n", arrX[i]);
+ */
 			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
 				lst = cons(y, x, arrY[i], arrX[i], lst);
 			}
@@ -648,6 +650,7 @@ list* pawnCheckEnemyWhite(int y, int x, piece board[64]){
 			continue;
 		}
 	}
+	//printList(lst);
 	return lst;
 }
 
@@ -657,7 +660,7 @@ list* pawnCheckEnemyBlack(int y, int x, piece board[64]){
 	int arrY[] = {y + 1, y + 1};
 	int arrX[] = {x + 1, x - 1};
 	
-	for(int i; i < 2; i++){
+	for(int i = 0; i < 2; i++){
 		if(checkCoord(arrY[i], arrX[i])){
 			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
 				lst = cons(y, x, arrY[i], arrX[i], lst);
@@ -667,6 +670,7 @@ list* pawnCheckEnemyBlack(int y, int x, piece board[64]){
 			continue;
 		}
 	}
+	//printList(lst);
 	return lst;
 }
 //проблема 1: белый начинеет ход приемущественно с пешек, черный с других фигур, черный пешками не ходит.
@@ -686,7 +690,7 @@ list* moveWhitePawn(int y, int x, piece board[64]) {
 	int arrY[] = {y - 1, y - 2};
 	int arrX[] = {x , x};
 	list* lst = pawnCheckEnemyWhite(y, x, board);
-	printList(lst);
+	//printList(lst);
 	if (y != 6) {
 		if(checkCoord(y - 1, x) && board[(y - 1) * 8 + x] == empty){
 			lst = cons(y, x, y - 1, x, lst);
@@ -695,7 +699,8 @@ list* moveWhitePawn(int y, int x, piece board[64]) {
 	else {
 		for(int i = 0; i < 2; i++) {
 			if(checkCoord(arrY[i], arrX[i]) && board[arrY[i]*8+arrX[i]] != empty) {
-				
+				}
+				else {
 					lst = cons(y, x, arrY[i], arrX[i], lst);
 				}
 			}
@@ -709,7 +714,7 @@ list* moveBlackPawn(int y, int x, piece board[64]) {
 	int arrY[] = {y + 1, y + 2};
 	int arrX[] = {x , x};
 	list* lst = pawnCheckEnemyWhite(y, x, board);
-	printList(lst);
+	//printList(lst);
 	if (y != 1) {
 		if(checkCoord(y + 1, x) && board[(y + 1) * 8 + x] == empty){
 			lst = cons(y, x, y + 1, x, lst);
@@ -717,11 +722,13 @@ list* moveBlackPawn(int y, int x, piece board[64]) {
 	}	
 	else {
 		for(int i = 0; i < 2; i++) {
-			if(board[arrY[i]*8+arrX[i]] != empty && checkCoord(arrY[i], arrX[i])) {
+			if(checkCoord(arrY[i], arrX[i]) && board[arrY[i]*8+arrX[i]] != empty) {
+				}
+				else {
 					lst = cons(y, x, arrY[i], arrX[i], lst);
+				}
 			}
-		}
-	}		
+		}	
 	return lst;
 }
 
