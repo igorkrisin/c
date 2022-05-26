@@ -101,7 +101,7 @@ typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, king, queen, bisho
 
 typedef struct board {
 	piece* board;
-	struct boards* next;
+	struct board* next;
 } boards;
 
 boards* consBoard(boards* lst, piece board[64]) {
@@ -255,10 +255,10 @@ boards* listBoard(list* move, piece board[64]) {
 
     boards* amountBoards = NULL;
     while(move != NULL) {
-	piece* newBoard = copyBoard(board);
-	doMove(newBoard, move);
-	amountBoards = consBoard(newBoard, board);
-	move = move->next;
+		piece* newBoard = copyBoard(board);
+		doMove(newBoard, move);
+		amountBoards = consBoard(amountBoards, newBoard);
+		move = move->next;
     }
     return amountBoards;
 }
@@ -1109,11 +1109,11 @@ int countMove(piece board[64], color colors, int depth) {
     }
     else { 
 		boards* listBoard = allMove(colors, board);
-		list* tempP = listBoard;
+		boards* tempP = listBoard;
 	while(listBoard != NULL) {	
 	    //piece* newBoard = copyBoard(board);
 	    //doMove(newBoard, listMove);
-	    count += countMove(listBoard, flipColor(colors), depth - 1);
+	    count += countMove(board, flipColor(colors), depth - 1);
 	    listBoard = listBoard->next;
 	    //free(newBoard);
 	}
