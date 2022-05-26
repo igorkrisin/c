@@ -99,10 +99,17 @@ typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, king, queen, bisho
 
 
 
-typedef struct boards {
-	piece board;
+typedef struct board {
+	piece* board;
 	struct boards* next;
-} otherBoards;
+} boards;
+
+boards* consBoard(boards* lst, piece board[64]) {
+    boards* newCell = (boards*)malloc(sizeof(boards));
+    newCell->board = board;
+    newCell->next = lst;
+    return newCell;
+}
 		              //0     1
 typedef enum colors {white, black} color;
 //прототипы
@@ -142,8 +149,10 @@ list* pawnCheckEnemyWhite(int y, int x, piece board[64]);
 int returnValueThMap(int y, int x, color colors, piece board[64]);
 list* doMoveKingColor(int y, int x,piece board[64],color colors);
 int countMove(piece board[64], color colors, int depth);
-list* castling(piece board[64], color colors);
+boards* castling(piece board[64], color colors);
 void checkRook(int* y2, int* x2, color colors, piece board[64]);
+boards* listBoard(list* move, piece board[64]);
+boards* appendBoard(boards* board1, boards* board2);
 
 color checkColor(piece pieces) {
 	//printf("piecec1: %d\n",pieces);
@@ -208,7 +217,7 @@ int threatMap[64] = {
 // todo BCPL
 
 
-list* allMove(color colors, piece board[64]) {
+boards* allMove(color colors, piece board[64]) {
     list* amountLst = NULL;
     for(int y = 0; y < 8; y++){
 		for(int x = 0; x < 8; x++) {
@@ -237,12 +246,32 @@ list* allMove(color colors, piece board[64]) {
  			} 
 		}
 	}
-		//amountLst = append(amountLst, castling(board, colors));
+		boards* amountBoards = appendBoard(listBoard(amountLst, board), castling(board, colors));
 	
-    return amountLst;	
+    return amountBoards;	
 }
 
+boards* listBoard(list* move, piece board[64]) {
 
+    boards* amountBoards = NULL;
+    while(move != NULL) {
+	piece* newBoard = copyBoard(board);
+	doMove(newBoard, move);
+	amountBoards = consBoard(newBoard, board);
+	move = move->next;
+    }
+    return amountBoards;
+}
+
+boards* appendBoard(boards* board1, boards* board2) {
+    if(board1 == NULL) return board2;
+	boards* p1 = board1;
+	while(p1->next != NULL) {
+	    p1 = p1->next;		
+	}
+	p1->next = board2;
+    return board1;
+} 
 
 
 int*  allThreatMap(color colors, piece board[64]) {
@@ -357,9 +386,9 @@ int main() {
 		getchar();
 	    
 	}     */
-	 for(int depth = 1; depth < 7; depth++) {
+	/* for(int depth = 1; depth < 7; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth));
-	} 
+	} */
  	//printf("count_free %d\n",count_free);
 	//printf("count_ malloc %d\n",count_mall); 
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
@@ -1079,23 +1108,23 @@ int countMove(piece board[64], color colors, int depth) {
 		return 1;
     }
     else { 
-		list* listMove = allMove(colors, board);
-		list* tempP = listMove;
-	while(listMove != NULL) {	
-	    piece* newBoard = copyBoard(board);
-	    doMove(newBoard, listMove);
-	    count += countMove(newBoard, flipColor(colors), depth - 1);
-	    listMove = listMove->next;
-	    free(newBoard);
+		boards* listBoard = allMove(colors, board);
+		list* tempP = listBoard;
+	while(listBoard != NULL) {	
+	    //piece* newBoard = copyBoard(board);
+	    //doMove(newBoard, listMove);
+	    count += countMove(listBoard, flipColor(colors), depth - 1);
+	    listBoard = listBoard->next;
+	    //free(newBoard);
 	}
 	
-	delList(tempP);
+	//delList(tempP); // TODO сдеалть функцию  delBoard;
     }
     return count;
 }
 
 
-list* castling(piece board[64], color colors){
+boards* castling(piece board[64], color colors){
 	list* lst = NULL;
 	int x2, y2;
 	int x, y;
@@ -1127,7 +1156,7 @@ list* castling(piece board[64], color colors){
 		lst = NULL;
 	}
 
-		return lst;
+		return listBoard(lst, board);
 }
 
 //ханойская башня
