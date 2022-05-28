@@ -84,6 +84,8 @@ void printList(list* lst) {
     }
 }
 
+
+
 list* append(list *lst1, list *lst2) {
     if(lst1 == NULL) return lst2;
 	list* p1 = lst1;
@@ -98,11 +100,11 @@ list* append(list *lst1, list *lst2) {
 typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, king, queen, bishop, knight, rook, pawn, empty} piece;
 
 
-
 typedef struct board {
 	piece* board;
 	struct board* next;
 } boards;
+
 
 boards* consBoard(boards* lst, piece board[64]) {
     boards* newCell = (boards*)malloc(sizeof(boards));
@@ -154,6 +156,13 @@ void checkRook(int* y2, int* x2, color colors, piece board[64]);
 boards* listBoard(list* move, piece board[64]);
 boards* appendBoard(boards* board1, boards* board2);
 
+
+void printBoardList(boards* board) {
+    while(board != NULL) {
+	printBord(board->board);
+	board = board->next;
+    }
+}
 color checkColor(piece pieces) {
 	//printf("piecec1: %d\n",pieces);
     piece blackPiece[6] = {rook, knight, bishop, king, queen, pawn};
@@ -320,8 +329,11 @@ int main() {
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN,
-	ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK,	
+	ROOK, empty, empty, QUEEN, KING, BISHOP, KNIGHT, ROOK,	
 };
+
+    printBoardList(castling(board, white));
+    
 	//allThreatMap(white);
     //printf("%d",checkColor(pawn));
     //printBord(board);
@@ -365,7 +377,7 @@ int main() {
 	//printf("%d",returnValueThMap(5,3,black));
 //checkMate(board, white);
 //printList(doMoveKingColor(0, 3, board, black));
- /*  int whiteBl = white;
+ /*int whiteBl = white;
  	  while(1) {
 		  
  	    whiteBl = flipColor(whiteBl);
@@ -385,8 +397,8 @@ int main() {
 		
 		getchar();
 	    
-	}     */
-	/* for(int depth = 1; depth < 7; depth++) {
+	}  */   
+	 /*for(int depth = 1; depth < 7; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth));
 	} */
  	//printf("count_free %d\n",count_free);
@@ -855,12 +867,18 @@ void switchBoard(int y,int x,piece board[64]){
 
 void delList(list* lst) {
     while(lst != NULL) {
-	list* tempP = lst;
-	lst = lst->next;
-	free(tempP);
+		list* tempP = lst;
+		lst = lst->next;
+		free(tempP);
     }
 }
-
+void delBoard(boards* board) {
+    while(board != NULL) {
+		boards* tempP = board;
+		board = board->next;
+		free(tempP);
+    }
+}
 int countEl(list* lst) {
     int count = 0;
     while(lst != NULL) {
@@ -1123,40 +1141,60 @@ int countMove(piece board[64], color colors, int depth) {
     return count;
 }
 
+void doMoveCoord(int goFromY, int goFromX, int goToY, int goToX, piece board[64]) {
+    board[goToY*8+goToX] = board[goFromY*8+goFromX];
+    board[goFromY*8+goFromX] = empty;
+    
+}
+
 
 boards* castling(piece board[64], color colors){
-	list* lst = NULL;
-	int x2, y2;
+
+	boards* lstBoards = NULL;
+	piece* newBoard = copyBoard(board);
+	int x2, y2; //TODO переделать поиск кооординат на конкретные координаты king and rook, в зависимости от цвета
 	int x, y;
 	checkKing(&y, &x, colors, board);
 	checkRook(&y2, &x2, colors, board);
-	
-	if(moveKingCountWhite == 0 && moveRookCountWhite == 0 && !checkCheck(board,colors)) {
+	printf("x: %d", x);
+	printf("y: %d\n", y);
+	printf("x2: %d", x2);
+	printf("y2: %d\n", y2);
+	if(!checkCheck(board,colors)) {
+	    //printf("%s\n", "enter castling");
 		if(board[y*8+x+1] == empty && board[y*8+x+2] == empty ) {
-			lst = cons(y, x, y, x+2, lst);
-			lst = cons(y2, x2, y2, x-2, lst);
-			
+		piece* newBoard = copyBoard(board);
+		printf("%s\n", "1enter castling");
+			doMoveCoord(y, x, y, x+3, newBoard);
+			doMoveCoord(y2, x2, y2, x-2, newBoard);
+			lstBoards = consBoard(lstBoards, newBoard);
 		}
 		if(board[y*8+x-1] == empty && board[y*8+x-2] == empty&& board[y*8+x-3] == empty) {
-			lst = cons(y, x, y, x-2, lst);
-			lst = cons(y2, x2, y2, x+3, lst);
+		piece* newBoard = copyBoard(board);
+		printf("%s\n", "2enter castling");
+			doMoveCoord(y, x, y, x-2, newBoard);
+			doMoveCoord(y2, x2, y2, x+3, newBoard);
+			lstBoards = consBoard(lstBoards, newBoard);
 		}
 	}
-	if(moveKingCountBlack == 0 && moveRookCountBlack == 0 && !checkCheck(board,colors)) {
+	if(!checkCheck(board,colors)) {
 		if(board[y*8+x+1] == empty && board[y*8+x+2] == empty ) {
-			lst = cons(y, x, y, x+2, lst);
-			lst = cons(y2, x2, y2, x-2, lst);
+		    	printf("%s\n", "3enter castling");
+		    piece* newBoard = copyBoard(board);
+		    	doMoveCoord(y, x, y, x+3, newBoard);
+			doMoveCoord(y2, x2, y2, x-2, newBoard);
+			lstBoards = consBoard(lstBoards, newBoard);
 		}
 		if(board[y*8+x-1] == empty && board[y*8+x-2] == empty&& board[y*8+x-3] == empty) {
-			lst = cons(y, x, y, x-2, lst);
-			lst = cons(y2, x2, y2, x+3, lst);
+			printf("%s\n", "4enter castling");
+		    piece* newBoard = copyBoard(board);
+			doMoveCoord(y, x, y, x-2, newBoard);
+			doMoveCoord(y2, x2, y2, x+3, newBoard);
+			lstBoards = consBoard(lstBoards, newBoard);
 		}
-	}
-	else {
-		lst = NULL;
 	}
 
-		return listBoard(lst, board);
+		return lstBoards;
 }
 
 //ханойская башня
