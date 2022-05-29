@@ -332,7 +332,7 @@ int main() {
 	ROOK, empty, empty, empty, KING, empty, empty, ROOK,	
 };
 
-    printBoardList(castling(board, white));
+   printBoardList(castling(board, black));
     
 	//allThreatMap(white);
     //printf("%d",checkColor(pawn));
@@ -1175,20 +1175,21 @@ boards* castling(piece board[64], color colors){
 		}
 	} 
 	if(!checkCheck(board, white)) {
+
 		if(board[57] == empty && board[58] == empty && board[59] == empty && board[56] == ROOK && board[60] == KING) { //left white
-		    	printf("%s\n", "3enter castling");
-		    	piece* newBoard = copyBoard(board);
-		    	doMoveCoord(7, 60, 7, 58, newBoard);
-				doMoveCoord(7, 56, 7, 59, newBoard);
-				lstBoards = consBoard(lstBoards, newBoard);
+		    printf("%s\n", "3enter castling");
+		    piece* newBoard = copyBoard(board);
+		    doMoveCoord(7, 4, 7, 2, newBoard);
+			doMoveCoord(7, 0, 7, 3, newBoard);
+			lstBoards = consBoard(lstBoards, newBoard);
 		}
 		if(board[61] == empty && board[62] == empty && board[63] == ROOK && board[60] == KING) { //right white
 			printf("%s\n", "4enter castling");
 		    piece* newBoard = copyBoard(board);
-			doMoveCoord(7, 60, 7, 62, newBoard);
-			doMoveCoord(7, 63, 7, 61, newBoard);
+			doMoveCoord(7, 4, 7, 6, newBoard);
+			doMoveCoord(7, 7, 7, 5, newBoard);
 			lstBoards = consBoard(lstBoards, newBoard);
-		}
+		} 
 	}
 
 		return lstBoards;
