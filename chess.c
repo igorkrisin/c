@@ -322,14 +322,14 @@ int*  allThreatMap(color colors, piece board[64]) {
 }
 int main() {
         piece board[64] = {
-	rook, knight, bishop, queen, king, bishop, knight, rook,
+	rook, empty, empty, empty, king, empty, empty, rook,
 	pawn, pawn, pawn, pawn, pawn, pawn, pawn, pawn,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN,
-	ROOK, empty, empty, QUEEN, KING, BISHOP, KNIGHT, ROOK,	
+	ROOK, empty, empty, empty, KING, empty, empty, ROOK,	
 };
 
     printBoardList(castling(board, white));
@@ -1129,14 +1129,12 @@ int countMove(piece board[64], color colors, int depth) {
 		boards* listBoard = allMove(colors, board);
 		boards* tempP = listBoard;
 	while(listBoard != NULL) {	
-	    //piece* newBoard = copyBoard(board);
-	    //doMove(newBoard, listMove);
 	    count += countMove(board, flipColor(colors), depth - 1);
 	    listBoard = listBoard->next;
 	    //free(newBoard);
 	}
 	
-	//delList(tempP); // TODO сдеалть функцию  delBoard;
+	delBoard(tempP); 
     }
     return count;
 }
@@ -1154,42 +1152,41 @@ boards* castling(piece board[64], color colors){
 	piece* newBoard = copyBoard(board);
 	int x2, y2; //TODO переделать поиск кооординат на конкретные координаты king and rook, в зависимости от цвета
 	int x, y;
-	checkKing(&y, &x, colors, board);
-	checkRook(&y2, &x2, colors, board);
-	printf("x: %d", x);
-	printf("y: %d\n", y);
-	printf("x2: %d", x2);
-	printf("y2: %d\n", y2);
-	if(!checkCheck(board,colors)) {
-	    //printf("%s\n", "enter castling");
-		if(board[y*8+x+1] == empty && board[y*8+x+2] == empty ) {
-		piece* newBoard = copyBoard(board);
-		printf("%s\n", "1enter castling");
-			doMoveCoord(y, x, y, x+3, newBoard);
-			doMoveCoord(y2, x2, y2, x-2, newBoard);
+	//checkKing(&y, &x, colors, board);
+	//checkRook(&y2, &x2, colors, board);
+	if(!checkCheck(board, black)) {
+		printf("board[56]ROOK: %d\n", board[56]);
+		printf("board[60]KING: %d\n", board[60]);
+		printf("board[63]ROOK: %d\n", board[63]);
+
+		if(board[1] == empty && board[2] == empty && board[3] == empty && board[0] == rook && board[4] == king ) {//left black
+			piece* newBoard = copyBoard(board);
+			printf("%s\n", "1enter castling");
+			doMoveCoord(0, 4, 0, 2, newBoard);//move king
+			doMoveCoord(0, 0, 0, 3, newBoard);// move rook
 			lstBoards = consBoard(lstBoards, newBoard);
 		}
-		if(board[y*8+x-1] == empty && board[y*8+x-2] == empty&& board[y*8+x-3] == empty) {
-		piece* newBoard = copyBoard(board);
-		printf("%s\n", "2enter castling");
-			doMoveCoord(y, x, y, x-2, newBoard);
-			doMoveCoord(y2, x2, y2, x+3, newBoard);
+		if(board[5] == empty && board[6] == empty && board[7] == rook && board[4] == king) {//right blaCK
+			piece* newBoard = copyBoard(board);
+			printf("%s\n", "2enter castling");
+			doMoveCoord(0, 4, 0, 6, newBoard);
+			doMoveCoord(0, 7, 0, 5, newBoard);
 			lstBoards = consBoard(lstBoards, newBoard);
 		}
-	}
-	if(!checkCheck(board,colors)) {
-		if(board[y*8+x+1] == empty && board[y*8+x+2] == empty ) {
+	} 
+	if(!checkCheck(board, white)) {
+		if(board[57] == empty && board[58] == empty && board[59] == empty && board[56] == ROOK && board[60] == KING) { //left white
 		    	printf("%s\n", "3enter castling");
-		    piece* newBoard = copyBoard(board);
-		    	doMoveCoord(y, x, y, x+3, newBoard);
-			doMoveCoord(y2, x2, y2, x-2, newBoard);
-			lstBoards = consBoard(lstBoards, newBoard);
+		    	piece* newBoard = copyBoard(board);
+		    	doMoveCoord(7, 60, 7, 58, newBoard);
+				doMoveCoord(7, 56, 7, 59, newBoard);
+				lstBoards = consBoard(lstBoards, newBoard);
 		}
-		if(board[y*8+x-1] == empty && board[y*8+x-2] == empty&& board[y*8+x-3] == empty) {
+		if(board[61] == empty && board[62] == empty && board[63] == ROOK && board[60] == KING) { //right white
 			printf("%s\n", "4enter castling");
 		    piece* newBoard = copyBoard(board);
-			doMoveCoord(y, x, y, x-2, newBoard);
-			doMoveCoord(y2, x2, y2, x+3, newBoard);
+			doMoveCoord(7, 60, 7, 62, newBoard);
+			doMoveCoord(7, 63, 7, 61, newBoard);
 			lstBoards = consBoard(lstBoards, newBoard);
 		}
 	}
