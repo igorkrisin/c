@@ -24,9 +24,9 @@ void* myMalloc(size_t size, int line, const char* func)
 {
     
 
-    //printf("вызван malloc из строки %d из функции %s\n", line, func);
+    printf("вызван malloc из строки %d из функции %s\n", line, func);
     count_mall++;
-    //printf("count_ malloc %d\n",count_mall);
+    printf("count_ malloc %d\n",count_mall);
     return malloc(size);
 
 }
@@ -39,9 +39,9 @@ void myFree(void* point, int line, const char* func)
 {
     
 
-    //printf("вызван free из строки %d из функйии %s\n", line, func);
+    printf("вызван free из строки %d из функйии %s\n", line, func);
     count_free++;
-    //printf("count_free %d\n",count_free);
+    printf("count_free %d\n",count_free);
     free(point);
 }
 
@@ -407,11 +407,11 @@ int main() {
 		getchar();
 	    
 	}  */   
-	 for(int depth = 1; depth < 7; depth++) {
+	 for(int depth = 1; depth < 5; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth, 1, 1));
 	} 
- 	//printf("count_free %d\n",count_free);
-	//printf("count_ malloc %d\n",count_mall); 
+ 	printf("count_free %d\n",count_free);
+	printf("count_ malloc %d\n",count_mall); 
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
   //doMove(board, black, returnEl(allMove(black, board), minValueMove(board, allMove(black, board), black)));
   //doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
@@ -1183,6 +1183,7 @@ int checkEnPassantWhite(piece board[64]) {
 		return 0;
 	}
 boards* enPassant(piece board[64], color colors) {
+	return 0;
 }
 
 
@@ -1238,12 +1239,11 @@ boards* illegalMoves(boards* listBoard, color colors,int isCastlingPossibleWhite
     int y = 0;
     while(listBoard != NULL) {
 	checkKing(&y, &x, colors, listBoard->board);
-	int* threatMap  = allThreatMap(listBoard->board, colors);
+	int* threatMap  = allThreatMap(colors, listBoard->board);
 	if(threatMap[y*8+x] == 0) {
 	    newListBoard = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, newListBoard, listBoard->board);
-	    listBoard = listBoard->next;
 	}
-	
+	 listBoard = listBoard->next;
     }
     delCellBoards(tempP);
     return newListBoard;
