@@ -159,11 +159,11 @@ list* doMoveKingColor(int y, int x,piece board[64],color colors, int isCastlingP
 int countMove(piece board[64], color colors, int depth, int isCastlingPossibleWhite, int isCastlingPossibleBlack);
 boards* castling(piece board[64], color colors, int isCastlingPossibleWhite, int isCastlingPossibleBlack);
 void checkRook(int* y2, int* x2, color colors, piece board[64]);
-boards* listBoard(list* move, piece board[64], boards* lstBoard);
+boards* move2boards(list* move, piece board[64]);
 boards* appendBoard(boards* board1, boards* board2);
 int checkEnPassantWhite(piece board[64]);
 int checkEnPassantBlack(piece board[64]);
-boards* illegalMoves(boards* listBoard, color colors);
+boards* illegalMoves(boards* move2boards, color colors);
 void doMoveCoord(int goFromY, int goFromX, int goToY, int goToX, piece board[64]);
 boards* copyLstBoard(boards* lstBoard);
 void delBoard(boards* board);
@@ -244,19 +244,19 @@ boards* allMove(color colors, piece board[64],int isCastlingPossibleWhite, int  
 		for(int x = 0; x < 8; x++) {
 		 	  if(board[y*8+x] != empty && checkColor(board[y*8+x]) == colors){
 				if(board[y*8+x] == king || board[y*8+x] == KING) {
-					amountLst = appendBoard(listBoard( moveKing(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board, amountLst), amountLst);
+					amountLst = appendBoard(move2boards( moveKing(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board), amountLst);
 				}
 				else if(board[y*8+x] == queen || board[y*8+x] == QUEEN) {
-				    	amountLst = appendBoard(listBoard( moveQueen(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board, amountLst), amountLst);
+				    	amountLst = appendBoard(move2boards( moveQueen(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board), amountLst);
 				}
 				else if(board[y*8+x] == bishop || board[y*8+x] == BISHOP) {
-					amountLst = appendBoard(listBoard( moveBishop(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board, amountLst), amountLst);
+					amountLst = appendBoard(move2boards( moveBishop(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board), amountLst);
 				}
 				else if(board[y*8+x] == knight || board[y*8+x] == KNIGHT) {
-				    	amountLst = appendBoard(listBoard( moveKnight(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board, amountLst), amountLst);
+				    	amountLst = appendBoard(move2boards( moveKnight(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board), amountLst);
 				}
 				else if(board[y*8+x] == rook || board[y*8+x] == ROOK) {
-					amountLst = appendBoard(listBoard( moveRook(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board, amountLst), amountLst);
+					amountLst = appendBoard(move2boards( moveRook(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board), amountLst);
 				}
 				else if(board[y*8+x] == PAWN) {
 					amountLst = appendBoard(amountLst, moveWhitePawn(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack));
@@ -268,22 +268,21 @@ boards* allMove(color colors, piece board[64],int isCastlingPossibleWhite, int  
 		}
 	}
     boards* amountBoards = illegalMoves(appendBoard(castling(board, colors, isCastlingPossibleWhite, isCastlingPossibleBlack), amountLst), colors);
-    delCellBoards(amountLst);
+    //delCellBoards(amountLst);
 	
     return amountBoards;	
 }
 
-boards* listBoard(list* move, piece board[64], boards* lstBoard) {//TODO взять значеня isCastlingPoss из списка досок
-	int isCastlingPossibleWhite = lstBoard->isCastlingPossibleWhite;
-	int isCastlingPossibleBlack = lstBoard->isCastlingPossibleBlack;
+boards* move2boards(list* move, piece board[64]) {//TODO взять значеня isCastlingPoss из списка досок	
     boards* amountBoards = NULL;
-
+    list* tempP = move;
     while(move != NULL) {
-		piece* newBoard = copyBoard(board);
-		doMove(newBoard, move);
-		amountBoards = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, amountBoards, newBoard);
-		move = move->next;
+	piece* newBoard = copyBoard(board);
+	doMove(newBoard, move);
+	amountBoards = consBoard(move->isCastlingPossibleWhite, move->isCastlingPossibleBlack, amountBoards, newBoard);
+	move = move->next;
     }
+    delList(tempP);
     return amountBoards;
 }
 
@@ -414,7 +413,7 @@ int main() {
 		getchar();
 	    
 	}  */   
-	 for(int depth = 1; depth < 7; depth++) {
+	 for(int depth = 1; depth < 5; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth, 1, 1));
 	} 
  	printf("count_free %d\n",count_free);
@@ -751,7 +750,14 @@ boards* moveWhitePawn(int y, int x, piece board[64],int isCastlingPossibleWhite,
 	//printList(lst);
 	if (y != 6) {
 		if(checkCoord(y - 1, x) && board[(y - 1) * 8 + x] == empty){
-		    lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y-1, x, board);
+		    //lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y-1, x, board);
+		    piece* newBoard = copyBoard(board);
+		    doMoveCoord(y,x, y - 1, x, newBoard);
+		    if(y == 0) {
+			newBoard[y*8+x] = queen;//TODO добавить Promotion
+		    }
+		    lst = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, lst, newBoard);
+		    
 		}
 	}	
 	else {
@@ -762,8 +768,10 @@ boards* moveWhitePawn(int y, int x, piece board[64],int isCastlingPossibleWhite,
 				    lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], board);
 				}
 			}
-		}		
-	return lst; //TODO добавить Promotion
+		}
+			
+		
+	return lst; 
 }
 
 
@@ -775,8 +783,16 @@ boards* moveBlackPawn(int y, int x, piece board[64], int isCastlingPossibleWhite
 	//printList(lst);
 	if (y != 1) {
 		if(checkCoord(y + 1, x) && board[(y + 1) * 8 + x] == empty){
-		lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y+1, x, board);
+		//lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y+1, x, board);
+		    piece* newBoard = copyBoard(board);
+		    doMoveCoord(y,x, y - 1, x, newBoard);
+		    if(y == 7) {
+			newBoard[y*8+x] = QUEEN;//TODO добавить Promotion
+		    }
+		    lst = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, lst, newBoard);
+		    
 		}
+		
 	}	
 	else {
 		for(int i = 0; i < 2; i++) {
@@ -1161,11 +1177,11 @@ int countMove(piece board[64], color colors, int depth, int isCastlingPossibleWh
     }
     else { 
 	int count = 0;
-	boards* listBoard = allMove(colors, board, isCastlingPossibleWhite, isCastlingPossibleBlack);
-	boards* tempP = listBoard;
-	while(listBoard != NULL) {	
-	    count += countMove(listBoard->board, flipColor(colors), depth - 1, isCastlingPossibleWhite, isCastlingPossibleBlack);
-	    listBoard = listBoard->next;
+	boards* move2boards = allMove(colors, board, isCastlingPossibleWhite, isCastlingPossibleBlack);
+	boards* tempP = move2boards;
+	while(move2boards != NULL) {	
+	    count += countMove(move2boards->board, flipColor(colors), depth - 1, isCastlingPossibleWhite, isCastlingPossibleBlack);
+	    move2boards = move2boards->next;
 	    //free(newBoard);
 	}
 	delBoard(tempP);
@@ -1251,27 +1267,26 @@ boards* castling(piece board[64], color colors, int isCastlingPossibleWhite, int
 		return lstBoards;
 }
 
-boards* illegalMoves(boards* listBoard, color colors) {//TODO унифицировать расположение isCastlingWhite и black TODO добавить isCastlingBlack и white из структуры
-    boards* newListBoard = NULL;
-    boards* tempP = listBoard;
-	int isCastlingPossibleWhite = listBoard->isCastlingPossibleWhite;
-	int isCastlingPossibleBlack = listBoard->isCastlingPossibleBlack;
+boards* illegalMoves(boards* lstBoard, color colors) {//TODO унифицировать расположение isCastlingWhite и black TODO добавить isCastlingBlack и white из структуры
+    boards* newLstBoard = NULL;
+    boards* tempP = lstBoard;
+
     int x = 0;
     int y = 0;
-    while(listBoard != NULL) {
-	checkKing(&y, &x, colors, listBoard->board);
-	int* threatMap  = allThreatMap(colors, listBoard->board);
+    while(lstBoard != NULL) {
+	checkKing(&y, &x, colors, lstBoard->board);
+	int* threatMap  = allThreatMap(colors, lstBoard->board);
 	if(threatMap[y*8+x] == 0) {
-	    newListBoard = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, newListBoard, listBoard->board);
+	    newLstBoard = consBoard(lstBoard->isCastlingPossibleWhite, lstBoard->isCastlingPossibleBlack, newLstBoard, lstBoard->board);
 	}
 	else {
-	    free(listBoard->board);
+	    free(lstBoard->board);
 	}
-	 listBoard = listBoard->next;
+	 lstBoard = lstBoard->next;
 	 free(threatMap);
     }
     delCellBoards(tempP);
-    return newListBoard;
+    return newLstBoard;
 }
 
 //ханойская башня
