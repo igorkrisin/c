@@ -97,7 +97,7 @@ list* append(list *lst1, list *lst2) {
 	
 }
 
-typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, king, queen, bishop, knight, rook, pawn, empty} piece;
+typedef enum pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, EN_PAWN, king, queen, bishop, knight, rook, pawn, en_pawn, empty} piece;
 
 
 typedef struct board {
@@ -161,13 +161,18 @@ boards* castling(piece board[64], color colors, int isCastlingPossibleWhite, int
 void checkRook(int* y2, int* x2, color colors, piece board[64]);
 boards* move2boards(list* move, piece board[64]);
 boards* appendBoard(boards* board1, boards* board2);
-int checkEnPassantWhite(piece board[64]);
-int checkEnPassantBlack(piece board[64]);
+int checkEnPassantWhiteLeft(piece board[64]);
+int checkEnPassantWhiteRight(piece board[64]);
+int checkEnPassantBlackLeft(piece board[64]);
+int checkEnPassantBlackRight(piece board[64]);
 boards* illegalMoves(boards* move2boards, color colors);
 void doMoveCoord(int goFromY, int goFromX, int goToY, int goToX, piece board[64]);
 boards* copyLstBoard(boards* lstBoard);
 void delBoard(boards* board);
 void delCellBoards(boards* board);
+boards* doMoveConsBoard(boards* lst,  int isCastlingPossibleWhite,  int isCastlingPossibleBlack, int y,int  x, int yChange, int xChange, piece board[64]);
+boards* returnBoard(boards* board, int numbBoard);
+
 
 void printBoardList(boards* board) {
     while(board != NULL) {
@@ -177,10 +182,10 @@ void printBoardList(boards* board) {
 }
 color checkColor(piece pieces) {
 	//printf("piecec1: %d\n",pieces);
-    piece blackPiece[6] = {rook, knight, bishop, king, queen, pawn};
-    piece whitePiece[6] = {ROOK, KNIGHT, BISHOP, KING, QUEEN, PAWN};
+    piece blackPiece[7] = {rook, knight, bishop, king, queen, pawn, en_pawn};
+    piece whitePiece[7] = {ROOK, KNIGHT, BISHOP, KING, QUEEN, PAWN, EN_PAWN};
 
-    for(int i = 0; i < 6; i++) {
+    for(int i = 0; i < 7; i++) {
 		if(whitePiece[i] == pieces) {
 			return white;
 		}
@@ -258,22 +263,24 @@ boards* allMove(color colors, piece board[64],int isCastlingPossibleWhite, int  
 				else if(board[y*8+x] == rook || board[y*8+x] == ROOK) {
 					amountLst = appendBoard(move2boards( moveRook(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), board), amountLst);
 				}
-				else if(board[y*8+x] == PAWN) {
+				else if(board[y*8+x] == PAWN || board[y*8+x] == EN_PAWN) {
 					amountLst = appendBoard(amountLst, moveWhitePawn(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack));
 				}
-				else if(board[y*8+x] == pawn){
+				else if(board[y*8+x] == pawn || board[y*8+x] == en_pawn){
 					amountLst = appendBoard(amountLst, moveBlackPawn(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack));
 				}  
+				
  			} 
 		}
 	}
+	
     boards* amountBoards = illegalMoves(appendBoard(castling(board, colors, isCastlingPossibleWhite, isCastlingPossibleBlack), amountLst), colors);
     //delCellBoards(amountLst);
 	
     return amountBoards;	
 }
 
-boards* move2boards(list* move, piece board[64]) {//TODO взять значеня isCastlingPoss из списка досок	
+boards* move2boards(list* move, piece board[64]) {
     boards* amountBoards = NULL;
     list* tempP = move;
     while(move != NULL) {
@@ -334,8 +341,10 @@ int*  allThreatMap(color colors, piece board[64]) {
 	}
 	return newThMap;
 }
-int main() {
-        piece board[64] = {
+
+
+ int main() {
+       /*piece board[64] = {
 	rook, knight, bishop, queen, king, bishop, knight, rook,
 	pawn, pawn, pawn, pawn, pawn, pawn, pawn, pawn,
 	empty,empty, empty, empty, empty, empty, empty, empty,
@@ -344,9 +353,20 @@ int main() {
 	empty,empty, empty, empty, empty, empty, empty, empty,
 	PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN,
 	ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK,	
-};
+} ;*/
 
-	printf("%d",checkEnPassantWhite(board));
+piece board[64] = {
+	empty, empty, empty, empty, king, empty, empty, empty,
+	empty, empty, empty, empty, empty, empty, empty, empty,
+	empty,empty, empty, empty, empty, empty, empty, empty,
+	empty,empty, empty, empty, empty, empty, empty, empty,
+	empty,empty, empty, empty, pawn, empty, empty, empty,
+	empty,empty, empty, empty, empty, empty, empty, empty,
+	empty, empty, empty, empty, empty, PAWN, empty, empty,
+	empty, empty, empty, empty, KING, empty, empty, empty,	
+}; 
+
+	//printf("%d",checkEnPassantWhite(board));
    //printBoardList(castling(board, black));
     
 	//allThreatMap(white);
@@ -392,32 +412,42 @@ int main() {
 	//printf("%d",returnValueThMap(5,3,black));
 //checkMate(board, white);
 //printList(doMoveKingColor(0, 3, board, black));
- /*int whiteBl = white;
+//int isCastlingPossibleWhite = cell->isCastlingPossibleWhite;
+/* printf("checkEnPassantBlackLeft: %d\n", checkEnPassantBlackLeft(board));
+printf("checkEnPassantBlackRight: %d\n", checkEnPassantBlackRight(board));
+printf("checkEnPassantWhiteLeft: %d\n", checkEnPassantWhiteLeft(board));
+printf("checkEnPassantWhiteRight: %d\n", checkEnPassantWhiteRight(board));
+ */
+int isCastlingPossibleWhite;
+int isCastlingPossibleBlack;
+int whiteBl = white; 
  	  while(1) {
-		  
+		list* lst = NULL;
+		
  	    whiteBl = flipColor(whiteBl);
-		printf("wb: %d , ", whiteBl);
- 	    printf("minVal: %d\n",minValueMove(board, allMove(whiteBl, board), whiteBl));
+		printf("wb: %d , \n", whiteBl);
+ 	    //printf("minVal: %d\n",minValueMove(board, allMove(whiteBl, board, isCastlingPossibleWhite, isCastlingPossibleBlack), whiteBl));
 		 if(checkCheck(board, white)){
 		    break;
 		}
 		if(checkCheck(board, black)){
 		    break;
 		}
-		doMove(board, returnEl(allMove(whiteBl, board), minValueMove(board, allMove(whiteBl, board), whiteBl)));
+		
+	//returnBoard(allMove(whiteBl, board,  isCastlingPossibleWhite, isCastlingPossibleBlack), minValueMove(board, allMove(whiteBl, board,  isCastlingPossibleWhite, isCastlingPossibleBlack), whiteBl));
 
-		printBord(board);
+		printBoardList(allMove(whiteBl, board, isCastlingPossibleWhite,isCastlingPossibleBlack));
 		//printList(moveKing(whiteBl, board));
 		
 		
-		getchar();
+		getchar(); 
 	    
-	}  */   
-	 for(int depth = 1; depth < 5; depth++) {
+	}  
+	/*   for(int depth = 1; depth < 5; depth++) {
 	    printf("numb: %d countMove: %d\n", depth, countMove(board, white, depth, 1, 1));
-	} 
- 	printf("count_free %d\n",count_free);
-	printf("count_ malloc %d\n",count_mall); 
+	}  */
+ 	//printf("count_free %d\n",count_free);
+	//printf("count_ malloc %d\n",count_mall); 
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
   //doMove(board, black, returnEl(allMove(black, board), minValueMove(board, allMove(black, board), black)));
   //doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
@@ -432,6 +462,7 @@ void printBord(piece board[64]) {
 		}
 			printf("\n");
 	}   
+		printf("\n");
 }
 
 void threatKnight(int y, int x, int threatMap[64], piece board[64]) {
@@ -604,11 +635,11 @@ list* moveKnight(int y, int x, piece board[64], int isCastlingPossibleWhite, int
 	int arrX[] = {x + 1, x + 2, x + 2, x + 1, x - 1, x - 2, x - 2, x - 1};
 	for(int i = 0; i < 8; i++) {
 	    if(checkCoord(arrY[i], arrX[i])) {
-		if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) == checkColor(board[arrY[i]*8+arrX[i]])) {
-			continue;
-		}
-		else {
-				lst = cons(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], lst); // TODO переделать  с аргументами кастлинга функции
+	        if(board[arrY[i]*8+arrX[i]] == empty){
+	             lst = cons(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], lst);
+	        } 
+		else if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
+			lst = cons(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], lst);
 			}
 		}
 	}
@@ -686,9 +717,8 @@ list* moveQueen(int y, int x, piece board[64], int isCastlingPossibleWhite,  int
 	return append(moveRook(y,x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack), moveBishop(y,x,board, isCastlingPossibleWhite,  isCastlingPossibleBlack));
 }
 
-boards* doMoveConsBoard(  int isCastlingPossibleWhite,  int isCastlingPossibleBlack, int y,int  x, int yChange, int xChange, piece board[64]) {
+boards* doMoveConsBoard(boards* lst,  int isCastlingPossibleWhite,  int isCastlingPossibleBlack, int y,int  x, int yChange, int xChange, piece board[64]) {
     piece* newBoard = copyBoard(board);
-	boards* lst = NULL;
     doMoveCoord(y,x, yChange, xChange, newBoard);
     return  consBoard( isCastlingPossibleWhite,  isCastlingPossibleBlack,  lst, newBoard);
 }
@@ -703,12 +733,10 @@ boards* pawnCheckEnemyWhite(int y, int x, piece board[64], int isCastlingPossibl
 			printf("arrX[i]: %d\n", arrX[i]);
  */
 			if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
-			    lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], board);
+			    lst = doMoveConsBoard(lst, isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], board);
 			}
 		}
-		else {
-			continue;
-		}
+		
 	}
 	//printList(lst);
 	return lst;
@@ -722,11 +750,8 @@ boards* pawnCheckEnemyBlack(int y, int x, piece board[64], int isCastlingPossibl
 	for(int i = 0; i < 2; i++){
 		if(checkCoord(arrY[i], arrX[i])){
 		    	if(board[arrY[i]*8+arrX[i]] != empty && checkColor(board[y*8+x]) != checkColor(board[arrY[i]*8+arrX[i]])) {
-			    lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], board);
+			    lst = doMoveConsBoard(lst, isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], board);
 			}
-		}
-		else {
-			continue;
 		}
 	}
 	//printList(lst);
@@ -743,66 +768,114 @@ else:
   .....
 */
 
+void finalizeEnPass(piece board[64]) {
+    for(int i = 0; i < 64; i++) {
+	if(board[i] == EN_PAWN) {
+		printf("EN_PAWN final\n");
+	    board[i] = PAWN;
+	}
+	else if(board[i] == en_pawn) {
+		printf("en_pawn final\n");
+	    board[i] = pawn;
+	}
+    }
+}
+
 boards* moveWhitePawn(int y, int x, piece board[64],int isCastlingPossibleWhite,int  isCastlingPossibleBlack) {	
-	int arrY[] = {y - 1, y - 2};
-	int arrX[] = {x , x};
 	boards* lst = pawnCheckEnemyWhite(y, x, board, isCastlingPossibleWhite,  isCastlingPossibleBlack);
 	//printList(lst);
+	printf("enter in white 1\n");
 	if (y != 6) {
+		printf("enter y != 6 white\n");
 		if(checkCoord(y - 1, x) && board[(y - 1) * 8 + x] == empty){
 		    //lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y-1, x, board);
 		    piece* newBoard = copyBoard(board);
 		    doMoveCoord(y,x, y - 1, x, newBoard);
-		    if(y == 0) {
-			newBoard[y*8+x] = queen;//TODO добавить Promotion
+		    if((y - 1) == 0) {
+				newBoard[(y-1)*8+x] = QUEEN;
 		    }
 		    lst = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, lst, newBoard);
 		    
 		}
 	}	
-	else {
-		for(int i = 0; i < 2; i++) {
-			if(checkCoord(arrY[i], arrX[i]) && board[arrY[i]*8+arrX[i]] != empty) {
-				}
-				else {
-				    lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], board);
-				}
+	else{
+			if(checkCoord(y - 1, x) && board[(y-1) * 8 + x] == empty){
+					printf("whitePawn not empty\n");
+				lst = doMoveConsBoard(lst, isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y - 1, x, board);
+			
+			}
+			piece* newBoard2 = copyBoard(board);
+			if(checkCoord(y - 1, x) && checkCoord(y - 2, x) && board[(y - 1) * 8 + x] == empty && board[(y - 2) * 8 + x] == empty) {
+				printf("both cell empty white\n");
+			
+				newBoard2[(y) * 8 + x] = EN_PAWN;
+				//newBoard2[y * 8 + x] = empty;
+				lst = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack,lst ,newBoard2);
+			}
+				if(checkEnPassantBlackLeft(newBoard2)){
+				printf("checkEnPassantblackLeft\n");
+			    newBoard2[y*8+x] = empty;
+			    newBoard2[(y-1)*8+x] = pawn;
+				newBoard2[(y-2)*8+x+1] = empty;
+			}
+			if(checkEnPassantBlackRight(newBoard2)){
+				printf("checkEnPassantblackRight\n");
+			    newBoard2[y*8+x] = empty;
+			    newBoard2[(y-1)*8+x] = pawn;
+				newBoard2[(y-2)*8+x-1] = empty;
 			}
 		}
 			
-		
+		printf("return White\n");
 	return lst; 
 }
 
 
 
 boards* moveBlackPawn(int y, int x, piece board[64], int isCastlingPossibleWhite, int isCastlingPossibleBlack) {	
-	int arrY[] = {y + 1, y + 2};
-	int arrX[] = {x , x};
-	boards* lst = pawnCheckEnemyWhite( y, x, board,isCastlingPossibleWhite,  isCastlingPossibleBlack);
-	//printList(lst);
+	boards* lst = pawnCheckEnemyBlack( y, x, board,isCastlingPossibleWhite,  isCastlingPossibleBlack);
+	printf("enter in black \n");
 	if (y != 1) {
+		printf("BLACK if y != 1\n");
 		if(checkCoord(y + 1, x) && board[(y + 1) * 8 + x] == empty){
 		//lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y+1, x, board);
 		    piece* newBoard = copyBoard(board);
-		    doMoveCoord(y,x, y - 1, x, newBoard);
-		    if(y == 7) {
-			newBoard[y*8+x] = QUEEN;//TODO добавить Promotion
+		    doMoveCoord(y,x, y + 1, x, newBoard);
+		    if((y+1) == 7) {
+				newBoard[(y+1)*8+x] = queen;
 		    }
-		    lst = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, lst, newBoard);
-		    
+			lst = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack, lst, newBoard); 
 		}
-		
 	}	
 	else {
-		for(int i = 0; i < 2; i++) {
-			if(checkCoord(arrY[i], arrX[i]) && board[arrY[i]*8+arrX[i]] != empty) {
-				}
-				else {
-				        lst = doMoveConsBoard(isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, arrY[i], arrX[i], board);
-				}
+			if(checkCoord(y + 1, x) && board[(y + 1) * 8 + x] == empty){
+					printf("blackPawn not empty\n");
+				lst = doMoveConsBoard(lst, isCastlingPossibleWhite,  isCastlingPossibleBlack, y, x, y + 1, x, board);
+			
 			}
-		}	
+			piece* newBoard2 = copyBoard(board);
+			if(checkCoord(y + 1, x) && checkCoord(y + 2, x) && board[(y + 1) * 8 + x] == empty && board[(y + 2) * 8 + x] == empty) {
+				printf("both cell empty black\n");
+			
+				newBoard2[(y) * 8 + x] = en_pawn;
+				//newBoard2[y * 8 + x] = empty;
+				lst = consBoard(isCastlingPossibleWhite, isCastlingPossibleBlack,lst ,newBoard2);
+			}
+			if(checkEnPassantWhiteLeft(newBoard2)){
+				printf("checkEnPassantblackLeft\n");
+			    newBoard2[y*8+x] = empty;
+			    newBoard2[(y+1)*8+x] = PAWN;
+				newBoard2[(y+2)*8+x+1] = empty;
+			}
+			if(checkEnPassantWhiteRight(newBoard2)){
+				printf("checkEnPassantblackRight\n");
+			    newBoard2[(y)*8+x] = empty;
+				newBoard2[(y+2)*8+x-1] = empty;
+			    newBoard2[(y+1)*8+x] = PAWN;
+			}
+		}
+			
+			printf("return BLACK\n");
 	return lst;
 }
 
@@ -857,43 +930,49 @@ void printMove(piece board[64], list* move) {
 void switchBoard(int y,int x,piece board[64]){
 	switch(board[y*8+x]) { 
 		case king: 
-			printf("\u265A");
+			printf("[""\u265A""]");
 			break;
 		case queen:
-			printf("\u265B");
+			printf("[""\u265B""]");
 			break;
 		case bishop:
-			printf("\u265D");
+			printf("[""\u265D""]");
 			break;
 		case knight:
-			printf("\u265E");
+			printf("[""\u265E""]");
 			break;
 		case rook:
-			printf("\u265C");
+			printf("[""\u265C""]");
 			break;    
 		case pawn:
-			printf("\u265F");
-			break;    
+			printf("[""\u265F""]");
+			break;
+			case en_pawn:
+			printf("[""\u265F""]");
+			break;     
 		case KING:
-			printf("\u2654");
+			printf("[""\u2654""]");
 			break;    
 		case QUEEN:
-			printf("\u2655");
+			printf("[""\u2655""]");
 			break;
 		case BISHOP:
-			printf("\u2657");
+			printf("[""\u2657""]");
 			break;
 		case KNIGHT:
-			printf("\u2658");
+			printf("[""\u2658""]");
 			break;
 		case ROOK:
-			printf("\u2656");
+			printf("[""\u2656""]");
 			break;    
 		case PAWN:
-			printf("\u2659");
+			printf("[""\u2659""]");
+			break;    
+		case EN_PAWN:
+			printf("[""\u2659""]");
 			break;    
 		case empty:
-			printf(" ");
+			printf("["" ""]");
 			break;
 	}
 }
@@ -937,6 +1016,15 @@ list* returnEl(list* lst, int numbEl) {
 		lst = lst -> next;
     }
     return lst;
+}
+
+boards* returnBoard(boards* board, int numbBoard) {
+	int count  = 0;
+	while (count != numbBoard) {
+		count ++;
+		board = board ->next;
+	}
+	return board;
 }
 
 piece returnRandPiece(piece board[64], color colors) {
@@ -1023,7 +1111,6 @@ int checkMate(piece board[64], color colors) {
 				printBord(cpBoard);
 				if(moveKing(y, x, cpBoard) != NULL) {
 				printf("%s\n", "dont mate");
-				//todo minimax  алгоритм по значениям для макимального урона и минимальных потерь
 				// проверка на мат делаем для всех фигур не рубит ли она короля - если рубит то break
 					return 1;
 				}
@@ -1151,10 +1238,10 @@ piece valueMove(piece board[64], int goToY, int goToX, int goFromY, int goFromX,
     newBoard[goFromY*8+goFromX] = empty; 
     return amountValuePiecec(newBoard, colors); 
 }
-//функция берет список всех ходов и находит минимвльно ценный ход
+//функция берет список всех ходов и находит минимально ценный ход
 
 int minValueMove(piece board[64], list* move, color colors) {
-    int minValue = valueMove(board, move->goToY, move->goToX, move->goFromY, move->goFromX,flipColor(colors));//добавил flipColors, что бы считать очки противника
+    int minValue = valueMove(board, move->goToY, move->goToX, move->goFromY, move->goFromX, flipColor(colors));//добавил flipColors, что бы считать очки противника
     int numberEl = 0;
     int numberMinEl  = 0;
 	list* tempP = move;
@@ -1177,11 +1264,11 @@ int countMove(piece board[64], color colors, int depth, int isCastlingPossibleWh
     }
     else { 
 	int count = 0;
-	boards* move2boards = allMove(colors, board, isCastlingPossibleWhite, isCastlingPossibleBlack);
-	boards* tempP = move2boards;
-	while(move2boards != NULL) {	
-	    count += countMove(move2boards->board, flipColor(colors), depth - 1, isCastlingPossibleWhite, isCastlingPossibleBlack);
-	    move2boards = move2boards->next;
+	boards* lstBoard = allMove(colors, board, isCastlingPossibleWhite, isCastlingPossibleBlack);
+	boards* tempP = lstBoard;
+	while(lstBoard != NULL) {	
+	    count += countMove(lstBoard->board, flipColor(colors), depth - 1, isCastlingPossibleWhite, isCastlingPossibleBlack);
+	    lstBoard = lstBoard->next;
 	    //free(newBoard);
 	}
 	delBoard(tempP);
@@ -1196,10 +1283,10 @@ void doMoveCoord(int goFromY, int goFromX, int goToY, int goToX, piece board[64]
     
 }
 
-int checkEnPassantWhite(piece board[64]) {
+int checkEnPassantWhiteLeft(piece board[64]) { //рубят белые
 		for(int x = 0; x < 8; x++) {
-			if(checkCoord(1, x+1)&&checkCoord(1, x-1)){
-				if(board[3*8+x] == PAWN && board[1*8+x-1] == pawn && board[1*8+x+1] == pawn)  {
+			if(checkCoord(1, x - 1)){
+				if(board[3 * 8 + x] == PAWN && board[1 * 8 + x - 1] == en_pawn)  {
 						return 1;
 				}
 			}
@@ -1207,26 +1294,58 @@ int checkEnPassantWhite(piece board[64]) {
 		return 0;
 	}
 
-	int checkEnPassantBlack(piece board[64]) {
+	int checkEnPassantWhiteRight(piece board[64]){ //рубят белые
 		for(int x = 0; x < 8; x++) {
-			if(checkCoord(6, x+1)&&checkCoord(6, x-1)){
-				if(board[4*8+x] == pawn && board[6*8+x-1] == PAWN && board[6*8+x+1] == PAWN)  {
+			if(checkCoord(1, x + 1)){
+				if(board[3 * 8 + x] == PAWN && board[1 * 8 + x + 1] == en_pawn)  {
 						return 1;
 				}
 			}
 		}
 		return 0;
 	}
-boards* enPassant(piece board[64], color colors) {
-	return 0;
+
+	int checkEnPassantBlackLeft(piece board[64]) {//рубят черные
+		for(int x = 0; x < 8; x++) {
+			if(checkCoord(6, x - 1)){
+				if(board[4 * 8 + x] == pawn && board[6  * 8 + x - 1] == EN_PAWN)  {
+						return 1;
+				}
+			}
+		}
+		return 0;
+	}
+
+	int checkEnPassantBlackRight(piece board[64]) {//рубят черные
+		for(int x = 0; x < 8; x++) {
+			if(checkCoord(6, x + 1)&&checkCoord(6, x - 1)){
+				if(board[4 * 8 + x] == pawn && board[6 * 8 + x + 1] == EN_PAWN)  {
+						return 1;
+				}
+			}
+		}
+		return 0;
+	}
+
+
+boards* enPassantBoards(piece board[64], color colors, int x, int y) {
+	boards* lstBoards = NULL;
+	int isEnpassantPossibleWhite;//пока не в структуре
+	int isEnpassantPossibleBlack;
+	if(isEnpassantPossibleWhite == 1) {//for white en passant
+		if(1) {
+			piece* newBoard = copyBoard(board);
+			doMoveCoord(y, x, y+2, 2, newBoard);//move black
+			doMoveCoord(0, 0, 0, 3, newBoard);// move white
+			lstBoards = consBoard(isEnpassantPossibleWhite, 0, lstBoards, newBoard);
+		}
+	}
 }
 
 
 
 boards* castling(piece board[64], color colors, int isCastlingPossibleWhite, int isCastlingPossibleBlack){
 	boards* lstBoards = NULL;
-	int x2, y2; 
-	int x, y;
 	if(!checkCheck(board, black) && isCastlingPossibleBlack == 1) {
 		if(board[1] == empty && board[2] == empty && board[3] == empty && board[0] == rook && board[4] == king ) {//left black
 			piece* newBoard = copyBoard(board);
@@ -1267,7 +1386,7 @@ boards* castling(piece board[64], color colors, int isCastlingPossibleWhite, int
 		return lstBoards;
 }
 
-boards* illegalMoves(boards* lstBoard, color colors) {//TODO унифицировать расположение isCastlingWhite и black TODO добавить isCastlingBlack и white из структуры
+boards* illegalMoves(boards* lstBoard, color colors) {//TODO унифицировать расположение isCastlingWhite и black 
     boards* newLstBoard = NULL;
     boards* tempP = lstBoard;
 
@@ -1275,7 +1394,8 @@ boards* illegalMoves(boards* lstBoard, color colors) {//TODO унифициро�
     int y = 0;
     while(lstBoard != NULL) {
 	checkKing(&y, &x, colors, lstBoard->board);
-	int* threatMap  = allThreatMap(colors, lstBoard->board);
+	int* threatMap  = allThreatMap(flipColor(colors), lstBoard->board);
+	finalizeEnPass(lstBoard->board);
 	if(threatMap[y*8+x] == 0) {
 	    newLstBoard = consBoard(lstBoard->isCastlingPossibleWhite, lstBoard->isCastlingPossibleBlack, newLstBoard, lstBoard->board);
 	}
