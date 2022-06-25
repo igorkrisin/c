@@ -174,7 +174,7 @@ void delBoard(boards* board);
 void delCellBoards(boards* board);
 boards* doMoveConsBoard(boards* lst,  int isCastlingPossibleWhite,  int isCastlingPossibleBlack, int y,int  x, int yChange, int xChange, piece board[64]);
 boards* returnBoard(boards* board, int numbBoard);
-void playerInput( piece board[64],int  isCastlingPossibleWhite, int isCastligPossibleBlack);
+void playerInput(char* y, piece board[64],int  isCastlingPossibleWhite, int isCastligPossibleBlack);
 int findBoardinLst(boards* lstBoard, piece board[64]);
 int comparisonBoards(piece board1[64], piece board2[64]);
 
@@ -411,7 +411,7 @@ int*  allThreatMap(color colors, piece board[64]) {
 	//printList(pawnChekEnemyWhite(6,3,board));//TODO уравноыесить символы сделав после каждого пробьел добавить на доску номера и буквы
 	int isCastlingPossibleWhite;
 	int isCastlingPossibleBlack;
-	playerInput(board, isCastlingPossibleWhite, isCastlingPossibleBlack);
+	playerInput("b2 c2", board, isCastlingPossibleWhite, isCastlingPossibleBlack);
 	printBord(board);
 /* 	int x,y;
 	
@@ -427,7 +427,7 @@ printf("checkEnPassantBlackRight: %d\n", checkEnPassantBlackRight(board));
 printf("checkEnPassantWhiteLeft: %d\n", checkEnPassantWhiteLeft(board));
 printf("checkEnPassantWhiteRight: %d\n", checkEnPassantWhiteRight(board));
  */
- /*
+ 
 int whiteBl = white; 
  	  while(1) {
 		list* lst = NULL;
@@ -442,7 +442,7 @@ int whiteBl = white;
 		    break;
 		}
 		
-	//returnBoard(allMove(whiteBl, board,  isCastlingPossibleWhite, isCastlingPossibleBlack), minValueMove(board, allMove(whiteBl, board,  isCastlingPossibleWhite, isCastlingPossibleBlack), whiteBl));
+	returnBoard(allMove(whiteBl, board,  isCastlingPossibleWhite, isCastlingPossibleBlack), minValueMove(board, allMove(whiteBl, board,  isCastlingPossibleWhite, isCastlingPossibleBlack), whiteBl));
 
 		printBoardList(allMove(whiteBl, board, isCastlingPossibleWhite,isCastlingPossibleBlack));
 		//printList(moveKing(whiteBl, board));
@@ -456,7 +456,7 @@ int whiteBl = white;
 	}  
  	printf("count_free %d\n",count_free);
 	printf("count_ malloc %d\n",count_mall);
-	*/ 
+	
  	//doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
   //doMove(board, black, returnEl(allMove(black, board), minValueMove(board, allMove(black, board), black)));
   //doMove(board, white, returnEl(allMove(white, board), minValueMove(board, allMove(white, board), white)));
@@ -468,15 +468,19 @@ int whiteBl = white;
 
 //0 2 1 3
 
-void playerInput( piece board[64],int  isCastlingPossibleWhite, int isCastligPossibleBlack){
-    char y[10000];
+void playerInput(char* y, piece board[64],int  isCastlingPossibleWhite, int isCastligPossibleBlack){
+	printBord(board);
+    char coord[10000];
     printf("введите ваш ход в формате а1 b2: ");
-    fgets(y, 10000, stdin); 
-    printf("y: %s\n", y);
-    int goFromCoord = (y[0] - 97) * 8 + y[1]-48-1;
+    fgets(coord, 10000, stdin); 
+   	printf("coord: %s\n", coord);
+   
+	int x = coord[1];
+    int goFromCoord = (coord[0] - 97) * 8 + x - 48 - 1;
 	printf("goFromCoord: %d\n", goFromCoord);
-    int goToCoord = (y[3] - 97) *8 + y[4]-48-1; //TODO разложить goToCoord and From на Х и У
-    printf("y[3]: %d\n", y[3]);
+	x = coord[4];
+    int goToCoord = (coord[3] - 97) *8 + x - 48 - 1; //TODO разложить goToCoord and From на Х и У
+    printf("goToCoord: %d\n", goToCoord);
 	int tempPiece = board[goFromCoord];
 	int colorPiece = checkColor(board[goFromCoord]);
 	if(goFromCoord >= 64 || goFromCoord < 0 &&  goToCoord >= 64 || goToCoord < 0){
@@ -536,13 +540,21 @@ int comparisonBoards(piece board1[64], piece board2[64]){
 }
 
 void printBord(piece board[64]) {
-	char* arr;
-	for(int i = 0; i< 8; i++){
-		arr += i;
-	}
-	printf("%s", arr);
+	printf("\n");
+	printf("  ");
+	char chars[32]; 
+ 	for(int i=97, n=0; i<=104; ++i, ++n){
+        chars[n] = (char) i; // (char) приводит код к символу
+    }
+	for (int i = 1; i < 9; i++){
+			printf(" %d ", i);
+		}
+		printf("\n");
     for(int y = 0; y < 8; y++) {
-		printf(" %c ", arr[y] - 48);
+		
+		printf(" %c", chars[y]);
+		
+		
 		for(int x = 0; x < 8; x++) {
 			
 			switchBoard(y,x,board);
